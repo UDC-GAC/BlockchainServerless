@@ -83,7 +83,7 @@
 \end{abstract}
 
 \begin{keyword}
-
+anonymous computing, decentralized accounting
 \end{keyword}
 
 \end{frontmatter}
@@ -102,30 +102,58 @@
 	\item Se usaría 1 solo contenedor, dentro de 1 app y asociada a 1 usuario. El objetivo del artículo no sería demostrar tanto la plataforma serverless y sus capacidades de gestión de múltiples contenedores (eso ya lo han hecho otros artículos), sino sus funciones de contabilidad e integración con la blockchain.
 \end{itemize}
 
+\newcommand{\ContainerUp}{Se levanta un contenedor sin nada ejecutándose, con unos recursos asignados iniciales}
+
+\newcommand{\UserSendsCredit}{El usuario manda crédito}
+\newcommand{\UserNoCredit}{El usuario no tiene crédito}
+\newcommand{\UserAccountingActivated}{Se activa el accounting para el usuario}
+
+
+\newcommand{\ServerlessDown}{La plataforma (serverless) ajusta los recursos a la baja}
+\newcommand{\ServerlessUp}{La plataforma (serverless) ajusta los recursos al alza}
+\newcommand{\ServerlessAdapts}{La plataforma (serverless) ajusta los recursos según la demanda}
+
+\newcommand{\AccountingIdle}{La plataforma (accounting) no detecta uso así que no consume nada}
+\newcommand{\AccountingConsumes}{La plataforma (accounting) detecta uso y va consumiendo el crédito}
+\newcommand{\AccountingRestricts}{La plataforma (accounting) restringe los recursos}
+\newcommand{\AccountingAllows}{La plataforma (accounting) levanta la restricción}
+\newcommand{\AccountingCredit}{El crédito restante debería ser}
+
+\newcommand{\AppStart}{Arranca la ejecución de}
+\newcommand{\AppRuns}{Continúa la ejecución de la aplicación}
+\newcommand{\AppWaits}{La aplicación se para a la espera de que haya crédito}
+\newcommand{\AppResume}{La aplicación se reanuda}
+
+
+\newcommand{\Wait}{Se espera un tiempo}
+
 \newpage
 \section{Basic Experiment}
 La secuencia sería:
 \begin{itemize}
 	\setlength\itemsep{0em}
-	\item Se levanta un contenedor sin nada ejecutándose, con unos recursos asignados iniciales
-	\item El usuario manda poco crédito
-	\item La plataforma (serverless) ajusta los recursos a la baja
-	\item Arranca la ejecución de \textbf{SimpleApp}
-	\item La plataforma (serverless) ajusta los recursos al alza
-	\item La plataforma (accounting) va consumiendo el crédito
-	\item Se ejecuta la aplicación hasta un punto intermedio en el que el crédito restante sea bajo ($ < 2 GRC$)
-	\item El usuario manda algo más de crédito
-	\item Se sigue ejecutando la aplicación hasta un punto en el que se consume todo el crédito 
-	\item La plataforma (accounting) aplica la restricción de recursos
-	\item Se deja pasar un tiempo, la ejecución seguirá pero con unos recursos mínimos
-	\item La contabilidad sigue, se puede incurrir en una ligera deuda
-	\item El usuario manda crédito de nuevo, una cantidad generosa
-	\item La plataforma (accounting) detecta el nuevo crédito y levanta la restricción
-	\item La plataforma (serverless) ajusta los recursos según consumo
-	\item Se sigue ejecutando la aplicación hasta su finalización
-	\item La plataforma (serverless) ajusta los recursos a la baja
-	\item La plataforma (accounting) no debería consumir crédito al no haber consumo
-	\item El crédito restante debería ser $ > 0$
+	\item \ContainerUp
+	\item \UserNoCredit
+	\item \UserSendsCredit, poco ($\approx 6~GRC$)
+	\item \UserAccountingActivated
+	\item \ServerlessDown
+	\item \AccountingIdle
+	\item \AppStart~\textbf{SimpleApp}
+	\item \ServerlessUp
+	\item \AccountingConsumes
+	\item \AppRuns~hasta un punto en el que el crédito restante sea bajo ($ < 2~GRC$)
+	\item \UserSendsCredit, una cantidad justa ($ > 4~GRC$)
+	\item \AppRuns~hasta que se consume todo el crédito 
+	\item \AccountingRestricts
+	\item \AppRuns~con los recursos restringidos (mínimos)
+	\item \AccountingConsumes, se genera una ligera deuda
+	\item \UserSendsCredit, una cantidad generosa ($ > 10~GRC$)
+	\item \AccountingAllows
+	\item \ServerlessAdapts
+	\item \AppRuns~hasta su finalización
+	\item \ServerlessDown
+	\item \AccountingIdle
+	\item \AccountingCredit~$ > 0~GRC$
 \end{itemize}
 
 Sobre la aplicación \textbf{SimpleApp}:
@@ -145,15 +173,21 @@ Sobre la aplicación \textbf{SimpleApp}:
 La secuencia sería:
 \begin{itemize}
 	\setlength\itemsep{0em}
-	\item Se levanta un contenedor sin nada ejecutándose
-	\item Se le da un credito muy bajo
-	\item Se deja que la plataforma ajuste los recursos (a la baja)
-	\item Se arranca la ejecución de \textbf{TrickleApp}
-	\item Se deja que la plataforma ajuste los recursos (al alza)
-	\item Durante la ejecución se irá mandando de forma periódica una cantidad pequeña de crédito
-	\item Se deja finalizar la ejecución
-	\item La plataforma ajusta los recursos (a la baja)
-	\item El crédito restante debería ser próximo a 0
+	\item \ContainerUp
+	\item \UserNoCredit
+	\item \UserSendsCredit, muy poco ($\approx 1~GRC$)
+	\item \UserAccountingActivated
+	\item \ServerlessDown
+	\item \AccountingIdle
+	\item \AppStart~\textbf{TrickleApp}
+	\item \ServerlessUp
+	\item \AppRuns 
+	\item \AccountingConsumes
+	\item \UserSendsCredit~durante la ejecución y de forma periódica, poco ($ \approx 0.25~GRC$)
+	\item \AppRuns~hasta su finalización
+	\item \ServerlessDown
+	\item \AccountingIdle
+	\item \AccountingCredit~$\approx 0$
 \end{itemize}
 
 Sobre la aplicación \textbf{TrickleApp}:
@@ -165,35 +199,62 @@ Sobre la aplicación \textbf{TrickleApp}:
 	\item Candidata: alguna de procesamiento streaming
 \end{itemize}
 
+\newpage
 \section{Credit-bounded processing}
-- Se levanta un contenedor sin nada ejecutándose
-- Se le da un crédito
-- Se arranca la ejecución de ** GreedyApp **
-- Se deja que la plataforma ajuste los recursos (al alza o a la baja)
-- Se deja finalizar la ejecución
-- El crédito restante debería ser 0 o incluso ligeramente negativo (deuda)
-- ** GreedyApp **
+\begin{itemize}
+	\setlength\itemsep{0em}
+	\item \ContainerUp
+	\item \UserNoCredit
+	\item \UserSendsCredit, suficiente ($\approx 10~GRC$)
+	\item \AppStart~\textbf{GreedyApp}
+	\item \ServerlessAdapts
+	\item \AccountingConsumes
+	\item \AppRuns~mientras tiene recursos, o sus métricas de rendimiento son buenas, hasta que se consume todo el crédito 
+	\item \AccountingRestricts
+	\item \AppRuns, pero ahora los recursos son mínimos, la aplicación decide parar
+	\item \AccountingCredit~$\approx 0$, o incluso ligeramente negativo (deuda)
+\end{itemize}
 
-\section{Credit-based processing}
-- Se levanta un contenedor sin nada ejecutándose
-- El usuario no tiene crédito
-- La plataforma detecta el crédito 0 y restringe los recursos
-- Se arranca la ejecución de ** PoliteApp **
-- La aplicación queda a la espera de que haya crédito
-- Se manda una cantidad de crédito
-- La plataforma detecta el nuevo crédito y levanta la restricción
-- La ejecución de la aplicación arranca
-- La plataforma ajuste los recursos (al alza)
-- Se deja que la aplicación ejecute hasta que el crédito esté próximo a agotarse
-- Cuando el crédito está próximo a 0, la aplicación se detiene (no se produce una restricción)
-- La plataforma ajusta los recursos (a la baja)
-- Se espera un tiempo
-- Se manda una cantidad de crédito
-- La ejecución de la aplicación se reanuda
-- Se deja que la aplicación ejecute hasta finalizar
-- La plataforma ajusta los recursos (a la baja)
-- El crédito restante debería ser > 0 (cantidad relativamente grande o suficiente)
-- ** PoliteApp **
+Sobre la aplicación \textbf{GreedyApp}:
+\begin{itemize}
+	\setlength\itemsep{0em}
+	\item 
+\end{itemize}
+
+\newpage
+\section{Credit-aware processing}
+\begin{itemize}
+	\setlength\itemsep{0em}
+	\item \ContainerUp
+	\item \UserNoCredit
+	\item \UserAccountingActivated
+	\item \AccountingRestricts
+	\item \AppStart~\textbf{PoliteApp}
+	\item \AppWaits~(ahora crédito $= 0~GRC$)
+	\item \UserSendsCredit~($\approx 10~GRC$)
+	\item \AccountingAllows
+	\item \AppResume
+	\item \ServerlessAdapts
+	\item \AppRuns, hasta que el crédito esté próximo a agotarse, para no producir una restricción
+	\item \AppWaits~(ahora crédito $\approx 0~GRC$)
+	\item \ServerlessDown
+	\item \AccountingIdle
+	\item \Wait
+	\item \UserSendsCredit~($\approx 10~GRC$)
+	\item \AppResume, ahora que hay crédito disponible
+	\item \AppRuns, hasta finalizar
+	\item \ServerlessDown
+	\item \AccountingIdle
+	\item \AccountingCredit~$> 0$
+\end{itemize}
+
+Sobre la aplicación \textbf{PoliteApp}:
+\begin{itemize}
+	\setlength\itemsep{0em}
+	\item 
+\end{itemize}
+
+\newpage
 
 \section*{Acknowledgements}
 
