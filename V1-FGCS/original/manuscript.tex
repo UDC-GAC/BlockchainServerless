@@ -1,0 +1,205 @@
+\documentclass[preprint,3p]{elsarticle}
+
+\usepackage{lineno,hyperref}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{color,soul}
+
+%\usepackage{subfigure}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\modulolinenumbers[5]
+
+\journal{Future Generation Computer Systems}
+
+%\newcommand\boldred[1]{\textcolor{red}{\textbf{#1}}}
+%\newcommand\boldblue[1]{\textcolor{blue}{\textbf{#1}}}
+%\newcommand\boldcyan[1]{\textcolor{cyan}{\textbf{#1}}}
+
+\newcommand\boldred[1]{#1}
+\newcommand\boldblue[1]{#1}
+\newcommand\boldcyan[1]{#1}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Elsevier bibliography styles
+%%%%%%%%%%%%%%%%%%%%%%%
+%% To change the style, put a % in front of the second line of the current style and
+%% remove the % from the second line of the style you would like to use.
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Numbered
+%\bibliographystyle{model1-num-names}
+
+%% Numbered without titles
+%\bibliographystyle{model1a-num-names}
+
+%% Harvard
+%\bibliographystyle{model2-names.bst}\biboptions{authoryear}
+
+%% Vancouver numbered
+%\usepackage{numcompress}\bibliographystyle{model3-num-names}
+
+%% Vancouver name/year
+%\usepackage{numcompress}\bibliographystyle{model4-names}\biboptions{authoryear}
+
+%% APA style
+%\bibliographystyle{model5-names}\biboptions{authoryear}
+
+%% AMA style
+%\usepackage{numcompress}\bibliographystyle{model6-num-names}
+
+%% `Elsevier LaTeX' style
+\bibliographystyle{elsarticle-num}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{
+	Blockchain-based resource accounting for a serverless execution platform
+}
+
+%% Group authors per affiliation:
+\author{Jonatan Enes\corref{cor}}
+\ead{jonatan.enes@udc.es}
+\author{Roberto R. Exp\'osito\corref{cor2}}
+\ead{rreye@udc.es}
+\author{Juan Touri\~no\corref{cor2}}
+\ead{juan@udc.es}
+
+%[gac]
+\address{Universidade da Coru\~na, CITIC, Computer Architecture Group, Campus de A Coru\~na, Spain}
+
+\cortext[cor]{Corresponding author}
+
+\begin{abstract}
+
+\end{abstract}
+
+\begin{keyword}
+
+\end{keyword}
+
+\end{frontmatter}
+
+\linenumbers
+
+\section{Introduction}
+\label{sec:intro}
+
+\section{Experiments}
+\label{sec:experiments}
+
+\section{Común a todos los experimentos}
+
+\begin{itemize}
+	\item Se usaría 1 solo contenedor, dentro de 1 app y asociada a 1 usuario. El objetivo del artículo no sería demostrar tanto la plataforma serverless y sus capacidades de gestión de múltiples contenedores (eso ya lo han hecho otros artículos), sino sus funciones de contabilidad e integración con la blockchain.
+\end{itemize}
+
+\newpage
+\section{Basic Experiment}
+La secuencia sería:
+\begin{itemize}
+	\setlength\itemsep{0em}
+	\item Se levanta un contenedor sin nada ejecutándose, con unos recursos asignados iniciales
+	\item El usuario manda poco crédito
+	\item La plataforma (serverless) ajusta los recursos a la baja
+	\item Arranca la ejecución de \textbf{SimpleApp}
+	\item La plataforma (serverless) ajusta los recursos al alza
+	\item La plataforma (accounting) va consumiendo el crédito
+	\item Se ejecuta la aplicación hasta un punto intermedio en el que el crédito restante sea bajo ($ < 2 GRC$)
+	\item El usuario manda algo más de crédito
+	\item Se sigue ejecutando la aplicación hasta un punto en el que se consume todo el crédito 
+	\item La plataforma (accounting) aplica la restricción de recursos
+	\item Se deja pasar un tiempo, la ejecución seguirá pero con unos recursos mínimos
+	\item La contabilidad sigue, se puede incurrir en una ligera deuda
+	\item El usuario manda crédito de nuevo, una cantidad generosa
+	\item La plataforma (accounting) detecta el nuevo crédito y levanta la restricción
+	\item La plataforma (serverless) ajusta los recursos según consumo
+	\item Se sigue ejecutando la aplicación hasta su finalización
+	\item La plataforma (serverless) ajusta los recursos a la baja
+	\item La plataforma (accounting) no debería consumir crédito al no haber consumo
+	\item El crédito restante debería ser $ > 0$
+\end{itemize}
+
+Sobre la aplicación \textbf{SimpleApp}:
+\begin{itemize}
+	\setlength\itemsep{0em}
+	\item Carga media (6-8 cores)
+	\item Poco o nada sensible a cambios de recursos, esta aplicación va a tener que seguir ejecutándose aún bajo la restricción de recursos
+	\item Con picos y valles de consumo, aunque no debería imponer un alto estrés a la plataforma en su gestión de recursos serverless
+	\item Candidatos: 
+	\begin{itemize}
+		\item Benchmark de procesamiento numérico puro
+	\end{itemize}
+\end{itemize}
+
+\newpage
+\section{Trickle processing}
+La secuencia sería:
+\begin{itemize}
+	\setlength\itemsep{0em}
+	\item Se levanta un contenedor sin nada ejecutándose
+	\item Se le da un credito muy bajo
+	\item Se deja que la plataforma ajuste los recursos (a la baja)
+	\item Se arranca la ejecución de \textbf{TrickleApp}
+	\item Se deja que la plataforma ajuste los recursos (al alza)
+	\item Durante la ejecución se irá mandando de forma periódica una cantidad pequeña de crédito
+	\item Se deja finalizar la ejecución
+	\item La plataforma ajusta los recursos (a la baja)
+	\item El crédito restante debería ser próximo a 0
+\end{itemize}
+
+Sobre la aplicación \textbf{TrickleApp}:
+\begin{itemize}
+	\setlength\itemsep{0em}
+	\item carga media (6-8 cores)
+	\item tiene que ser estable
+	\item puede ser algo sensible a cambios de recursos
+	\item Candidata: alguna de procesamiento streaming
+\end{itemize}
+
+\section{Credit-bounded processing}
+- Se levanta un contenedor sin nada ejecutándose
+- Se le da un crédito
+- Se arranca la ejecución de ** GreedyApp **
+- Se deja que la plataforma ajuste los recursos (al alza o a la baja)
+- Se deja finalizar la ejecución
+- El crédito restante debería ser 0 o incluso ligeramente negativo (deuda)
+- ** GreedyApp **
+
+\section{Credit-based processing}
+- Se levanta un contenedor sin nada ejecutándose
+- El usuario no tiene crédito
+- La plataforma detecta el crédito 0 y restringe los recursos
+- Se arranca la ejecución de ** PoliteApp **
+- La aplicación queda a la espera de que haya crédito
+- Se manda una cantidad de crédito
+- La plataforma detecta el nuevo crédito y levanta la restricción
+- La ejecución de la aplicación arranca
+- La plataforma ajuste los recursos (al alza)
+- Se deja que la aplicación ejecute hasta que el crédito esté próximo a agotarse
+- Cuando el crédito está próximo a 0, la aplicación se detiene (no se produce una restricción)
+- La plataforma ajusta los recursos (a la baja)
+- Se espera un tiempo
+- Se manda una cantidad de crédito
+- La ejecución de la aplicación se reanuda
+- Se deja que la aplicación ejecute hasta finalizar
+- La plataforma ajusta los recursos (a la baja)
+- El crédito restante debería ser > 0 (cantidad relativamente grande o suficiente)
+- ** PoliteApp **
+
+\section*{Acknowledgements}
+
+
+\section*{References}
+
+\bibliography{mybibfile}
+
+\end{document}

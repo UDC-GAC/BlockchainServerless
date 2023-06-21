@@ -1,0 +1,12 @@
+*.aux
+*.bbl
+*.out
+*.synctex.gz
+*.cut
+*.blg
+*.log
+*.spl
+*.pdf
+*.upa
+*.upb
+.idea/
