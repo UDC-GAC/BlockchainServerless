@@ -9,6 +9,7 @@ vim config/config.yml
 vim ansible/provisioning/templates/ubuntu_container.def
 
 ## EN SC-SERVER ##
+vagrant ssh
 
 SERV_INST="/vagrant/ServerlessContainers/"
 
@@ -19,7 +20,6 @@ sudo vim /etc/hosts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Instalar todo
-vagrant ssh
 cd /vagrant/ansible/provisioning/scripts
 python3 load_inventory_from_conf.py
 bash start_all.sh
