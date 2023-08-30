@@ -1,15 +1,24 @@
 exit 0 
 
 ## EN SERVER 1 ###
-# Cambiar los recursos 
+# Cambiar los recursos, usar el fichero config.yaml del repo
 cd AutoServerlessWeb/ansible/provisioning
+rm config/config.yml
 vim config/config.yml
 
-# Personalizar la imagen base de apptainer
+# Si se usa APPTAINER, personalizar la imagen base de apptainer
 vim ansible/provisioning/templates/ubuntu_container.def
 
-## EN SC-SERVER ##
+# Clonar ServerlessContainers en la raiz de vagrant y ponerlo en la rama de nuevas funcionalidades
+git clone https://github.com/UDC-GAC/ServerlessContainers
+git fetch origin new-features
+git checkout new-features
+git pull
+
+# Conectarse al SC-SERVER
 vagrant ssh
+
+## EN SC-SERVER ##
 
 SERV_INST="/vagrant/ServerlessContainers/"
 
@@ -32,7 +41,7 @@ bash start.sh
 # Hay que instalar algunos paquetes
 sudo apt install jq
 
-# En los nodos clientes, hay que arrancar el node_scaler como root
+# En el nodo cliente, hay que arrancar el node_scaler como root
 ssh host0
 tmux kill-session -t "node_scaler"
 killall gunicorn3
