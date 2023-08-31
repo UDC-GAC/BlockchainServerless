@@ -101,8 +101,8 @@ bash conf/subscribe-all.sh
 /usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.200/" # Interfaz web BDWatchdog
 /usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.200:50070/" # Namenode HDFS
 /usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.201:8000/container/" # Node Scaler Host0
-/usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.200:5000/structure/" # Orquestador
-
+/usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.200:5000/structure/" # Orquestador Estructuras
+/usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.200:5000/user/" # Orquestador Usuarios
 
 # Hay que arrancar los servicios Serverless
 bash scripts/services/start_services.sh 
@@ -153,3 +153,6 @@ sudo apt update
 sudo apt install gridcoinresearchd
 gridcoinresearchd -rpcconnect=192.168.51.100 -rpcport=9090 -rpcuser=gridcoinrpc -rpcpassword=Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV listaccounts
 
+# Hay que crear las métricas de blockchain
+cd /home/vagrant/AutoServerlessWeb_install/BDWatchdog/deployment/metrics/opentsdb
+bash ${SERV_INST}/scripts/databases/create-credit-opentsdb-metrics.sh

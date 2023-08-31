@@ -21,6 +21,8 @@ server=1
 rpcallowip=192.168.51.1
 rpcallowip=192.168.10.10
 rpcallowip=192.168.10.16
+rpcallowip=192.168.51.100
+rpcallowip=127.0.0.1
 rpcport=9090
 rpcuser=gridcoinrpc
 rpcpassword=Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV
@@ -31,7 +33,7 @@ sudo add-apt-repository ppa:gridcoin/gridcoin-stable
 sudo apt update
 sudo apt install gridcoinresearchd
 
-# Para arrancar el servidor es, HAY QUE ESPERAR UNOS SEGUNDOS POR LA SINCRONIZACION DE BLOQUES
+# Para arrancar el servidor es, HAY QUE ESPERAR UNOS SEGUNDOS POR LA SINCRONIZACIÓN DE BLOQUES
 gridcoinresearchd
 
 # Comandos ejemplos que se pueden ejecutar
@@ -39,4 +41,12 @@ bash gridcoin-run.sh listaccounts
 bash gridcoin-run.sh move user0 user1 10
 bash gridcoin-run.sh getbalancedetail
 bash gridcoin-run.sh getwalletinfo
+bash gridcoin-run.sh getaddressesbyaccount sink
+bash gridcoin-run.sh getaccountaddress sink
+bash gridcoin-run.sh getbalance
+bash gridcoin-run.sh getbalance sink
+bash gridcoin-run.sh listtransactions
+bash gridcoin-run.sh sendfrom sink SFwx7tNoMDwDLuLgdhc2Ht9JEcPAbr2CjN 10
 
+# La snapshot de la blockchain esta en
+# https://download.gridcoin.us/download/downloadstake/signed/snapshot.zip
