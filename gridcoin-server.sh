@@ -1,6 +1,10 @@
 exit 0
 
 # Para configurar el servidor es
+#
+# Ayuda para fichero de configuración
+# https://gridcoin.us/wiki/config-file
+#
 vim /root/.GridcoinResearch/gridcoinresearch.conf
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 addnode=addnode-us-central.cycy.me
@@ -31,9 +35,8 @@ sudo apt install gridcoinresearchd
 gridcoinresearchd
 
 # Comandos ejemplos que se pueden ejecutar
-gridcoinresearchd -rpcconnect=192.168.51.100 -rpcport=9090 -rpcuser=gridcoinrpc -rpcpassword=Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV listaccounts
-gridcoinresearchd -rpcconnect=192.168.51.100 -rpcport=9090 -rpcuser=gridcoinrpc -rpcpassword=Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV move user0 user1 10
-gridcoinresearchd -rpcconnect=192.168.51.100 -rpcport=9090 -rpcuser=gridcoinrpc -rpcpassword=Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV getbalancedetail
-gridcoinresearchd -rpcconnect=192.168.51.100 -rpcport=9090 -rpcuser=gridcoinrpc -rpcpassword=Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV getwalletinfo
-
+bash gridcoin-run.sh listaccounts
+bash gridcoin-run.sh move user0 user1 10
+bash gridcoin-run.sh getbalancedetail
+bash gridcoin-run.sh getwalletinfo
 

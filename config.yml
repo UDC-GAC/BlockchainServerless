@@ -2,7 +2,7 @@
 virtual_mode: yes
 
 # Currently supported container engines: lxc, apptainer
-container_engine: lxc #apptainer
+container_engine: lxc
 singularity_command_alias: apptainer # singularity or apptainer (only relevant when using apptainer as container engine)
 
 # Cgroups version: v1 (Lecacy or Hybrid mode) or v2 (Unified mode)
@@ -11,8 +11,8 @@ cgroups_version: v1
 
 ## Server Node
 server_ip: 192.168.56.200
-cpus_server_node: 4
-memory_server_node: 8192
+cpus_server_node: 2
+memory_server_node: 4096
 web_interface_port: 9000
 
 ## Services Config
@@ -23,13 +23,13 @@ couchdb_port: 5984
 opentsdb_url: "{{ server_ip }}"
 opentsdb_port: 4242
 
-## Client Nodes
-number_of_client_nodes: 1
-cpus_per_client_node: 8
-memory_per_client_node: 8192
-hdd_disks_per_client_node: 1
+## Hosts
+number_of_hosts: 1
+cpus_per_host: 8
+memory_per_host: 8192
+hdd_disks_per_host: 1
 hdd_disks_path_list: $HOME/hdd
-ssd_disks_per_client_node: 1
+ssd_disks_per_host: 1
 ssd_disks_path_list: $HOME/ssd
 
 ## Containers initial values

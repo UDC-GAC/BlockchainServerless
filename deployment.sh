@@ -1,19 +1,40 @@
 exit 0 
 
 ## EN SERVER 1 ###
+# Clonar repo Oscar
+cd /home/jonatan/
+git clone https://github.com/UDC-GAC/ServerlessYARN
+
+
+cd /home/jonatan/ServerlessYARN/ansible/provisioning
+# Clonar repos
+git clone https://github.com/UDC-GAC/bdwatchdog.git
+git clone https://github.com/UDC-GAC/ServerlessContainers.git
 # Cambiar los recursos, usar el fichero config.yaml del repo
-cd AutoServerlessWeb/ansible/provisioning
 rm config/config.yml
 vim config/config.yml
 
+
 # Si se usa APPTAINER, personalizar la imagen base de apptainer
-vim ansible/provisioning/templates/ubuntu_container.def
+vim templates/ubuntu_container.def
 
 # Clonar ServerlessContainers en la raiz de vagrant y ponerlo en la rama de nuevas funcionalidades
+cd /home/jonatan/ServerlessYARN
 git clone https://github.com/UDC-GAC/ServerlessContainers
+cd ServerlessContainers
 git fetch origin new-features
 git checkout new-features
 git pull
+
+# Arrancar las VMs
+cd /home/jonatan/ServerlessYARN
+vagrant up
+
+# Añadir dirección de Opentsdb
+sudo vim /etc/hosts
+~~~~~~~~
+192.168.56.200  sc-server opentsdb
+~~~~~~~~
 
 # Conectarse al SC-SERVER
 vagrant ssh
@@ -28,8 +49,9 @@ sudo vim /etc/hosts
 127.0.0.1 localhost couchdb orchestrator opentsdb
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Instalar todo
+# Instalar todo dentro de una sesion tmux
 cd /vagrant/ansible/provisioning/scripts
+tmux
 python3 load_inventory_from_conf.py
 bash start_all.sh
 
@@ -58,11 +80,11 @@ bash scripts/services/orchestrator/start_tmux.sh
 tmux ls
 
 
-# Hay que adaptar toda la configuracion de la infraestructura
+# Hay que adaptar toda la configuración de la infraestructura
 # HOSTS -> host0
 # CONTAINERS -> host0-cont0
 # Este fichero no se sincroniza desde local a remoto, pero se puede editar en local en PyCharm y que al guardar se mande
-vim conf/Orchestrator/layout.json
+vim conf/layout.json
 
 # Hay que crear las métricas de Serverless en BDWatchdog
 cd /home/vagrant/AutoServerlessWeb_install/BDWatchdog/deployment/metrics/opentsdb
@@ -75,7 +97,7 @@ bash conf/subscribe-all.sh
 
 
 # Comprobaciones en local
-/usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.200:4242/" # OpenTSDB 
+/usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.200:4242/" # OpenTSDB
 /usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.200/" # Interfaz web BDWatchdog
 /usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.200:50070/" # Namenode HDFS
 /usr/bin/google-chrome --user-data-dir="$HOME/proxy-profile" "http://192.168.56.201:8000/container/" # Node Scaler Host0
@@ -115,13 +137,10 @@ vim /vagrant/ansible/provisioning/templates/ubuntu_container.def
 
 #### COMANDOS PARA LXC ####
 ssh host0
-cd /vagrant
-lxc file push -r BDWatchdog/ host0-cont0/home/vagrant/AutoServerlessWeb_install
-
-
-lxc exec host0-cont0
+lxc exec host0-cont0 bash
+git clone https://github.com/UDC-GAC/BDWAtchdog
 echo "192.168.56.200 opentsdb" >> /etc/hosts
-cd /home/vagrant/AutoServerlessWeb_install/BDWatchdog/
+cd BDWAtchdog
 bash MetricsFeeder/scripts/run_atop_stream_tmux.sh
 apt update
 apt install stress
