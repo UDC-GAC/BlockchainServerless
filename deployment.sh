@@ -141,6 +141,11 @@ lxc exec host0-cont0 bash
 git clone https://github.com/UDC-GAC/BDWAtchdog
 echo "192.168.56.200 opentsdb" >> /etc/hosts
 cd BDWAtchdog
+
+vim MetricsFeeder/scripts/run_atop_stream.sh
+~~
+export POST_DOC_BUFFER_TIMEOUT=5
+~~
 bash MetricsFeeder/scripts/run_atop_stream_tmux.sh
 apt update
 apt install stress
