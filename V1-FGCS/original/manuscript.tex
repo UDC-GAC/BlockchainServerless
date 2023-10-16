@@ -1,3 +1,4 @@
+% !TeX spellcheck = es
 \documentclass[preprint,3p]{elsarticle}
 
 \usepackage{lineno,hyperref}
@@ -282,27 +283,82 @@ La secuencia sería:
 
 \section{Candidatos a aplicaciones}
 
+
 \begin{itemize}
+	\item Características comunes:
+	\begin{itemize}
+		\item Cada candidato se ha probado en un contenedor LXC
+		\item Algunos candidatos usan contenedores Docker, los cuales se arrancan dentro del contenedor LXC
+	\end{itemize}
+\end{itemize}
 
-	\item Aplicaciones de metagenómica (e.g., Pipeline PathSeq con GATK, ejecutados con Spark Standalone), en este caso los datos serán muestras que se procesarán.
-	
-	\item Arquitectura en microservicios (e.g., \href{https://github.com/instana/robot-shop}{Instana Robot Shop} + \href{https://locust.io/}{Locust}, Flask + Locust), en este caso no se procesarán datos per se, sino peticiones, que se pueden aumentar o disminuir en intensidad.
+\subsection{Pipeline Metagenómica}
 
-	\item Benchmark serverless (e.g., \href{https://github.com/spcl/serverless-benchmarks}{SeBS: Serverless Benchmark Suite}), estos benchmarks suelen soportar diversos tipos de cargas.
-	
-	\item Procesamiento de media, codificación (transcoding) de vídeo y audio en varios formatos, y procesado de imágenes. En este caso los datos serían dichos videos, imagenes o audios.
-	
-	\item Procesado de eventos (e.g., clickstream \href{https://github.com/ClickHouse/ClickBench}{ClickBench}, mensajes)
-	
-	\item Procesado de métricas, sensores (e.g., \href{https://github.com/timescale/tsbs}{Time Series Benchmark Suite (TSBS)})
-	
+\begin{itemize}
+	\item Se usaría el \href{https://gatk.broadinstitute.org/hc/en-us/articles/13832627644443-PathSeqPipelineSpark}{pipeline de GATK para Spark}
+	\item Se ejecutaría en local con Spark standalone
+	\item Los datos son las muestras de personas y de microorganismos
+	\item Hay una primera etapa intensiva (muestra humana), luego hay muchas más ligeras (microorganismos)
+	\item Las ejecuciones de muestras de microorganismos son individuales y se pueden solapar para más carga
+\end{itemize}
+
+\subsection{Tienda hecha con microservicios}
+
+\begin{itemize}
+	\item La tienda es \href{https://github.com/instana/robot-shop}{Instana Robot Shop}
+	\item El estrés se genera con \href{https://locust.io/}{Locust}
+	\item La tienda está formada por una arquitectura de microservicios que se levantan en dockers separados
+	\item En este escenario no se procesan datos, sino peticiones
+	\item Locust se puede modular para simular interacción (peticiones) por parte de un número de usuarios
+	\item Puede ser necesario arrancar varios estresadores Locust porque sino se ven limitados por CPU
+	\item Algún microservicio consume bastante memoria (+10 GiB)
+\end{itemize}
+
+\subsection{Suite de benchmarks serverless}
+
+\begin{itemize}
+	\item \href{https://github.com/spcl/serverless-benchmarks}{SeBS: Serverless Benchmark Suite}
+	\item Se usarían las funciones de compresión (zip), procesamiento de vídeo (ffmpg) y reconocimiento de animales en imagen (pytorch)
+	\item Los datos serían carpetas con muchos ficheros a empaquetar y comprimir, vídeos e imágenes de animales
+	\item Hay 2 datasets usables que en conjunto suman 11.000 imagenes de animales
+	\item La carga viene dada por el número de peticiones y su dificultad
+\end{itemize}
+
+
+\subsection{Procesado de eventos tipo clickstream}
+
+\begin{itemize}
+	\item Se usaría \href{https://github.com/ClickHouse/ClickBench}{ClickBench}
+	\item El dataset se carga en una MongoDB (otras DDBB soportadas) y se emiten queries
+	\item Las queries tienen duraciones distintas, las hay instantáneas, de 1, 10, 20, 30 minutos
+	\item Las queries cargan los workers de la base de datos que consumen CPU
+	\item Las queries también son intensivas en disco
+\end{itemize}
+
+
+\subsection{Procesado de series temporales}
+
+\begin{itemize}
+	\item Se usaría la suite \href{https://github.com/timescale/tsbs}{Time Series Benchmark Suite (TSBS)}
+	\item Los datos se generan con la propia herramienta, hay 2 escenarios, devops e iot
+	\item El escenario devops simula servidores y métricas
+	\item El escenario iot simula camiones en ruta y eventos
+	\item La base de datos usada seria PostgreSQL con la extensión para series temporales TimescaleDB
+	\item La carga es modulable con una variable `scale', en devops el número de hosts, en iot el de camiones
+	\item La carga puede ser la propia inserción de datos, o la ejecución de queries
+	\item Las queries se generan también con la herramienta y pueden modularse de igual manera con una variable `scale'
+\end{itemize}
+
+
+\subsection{Otros}
+\begin{itemize}
+		
 	\item Reconocimiento facial (e.g., \href{http://vis-www.cs.umass.edu/lfw/}{Faces in the Wild}), en este caso los datos son las caras.
 	
-	\item Encriptado/Cifrado/Hashing de ficheros.
+	\item Encriptado/Cifrado/Hashing de ficheros. Este se podría integrar como extensión de SeBS.
 	
 	\item Procesado de ficheros de texto (e.g., \href{https://github.com/logpai}{logs, LogPai})
 	
-
 \end{itemize}
 
 
