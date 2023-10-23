@@ -287,8 +287,10 @@ La secuencia sería:
 \begin{itemize}
 	\item Características comunes:
 	\begin{itemize}
-		\item Cada candidato se ha probado en un contenedor LXC
+		\item Cada candidato se ha probado en un contenedor LXC en mi servidor local
 		\item Algunos candidatos usan contenedores Docker, los cuales se arrancan dentro del contenedor LXC
+		\item En Plutón no se usa docker sino apptainer, en algunos casos no funcionan las aplicaciones dockerizadas
+		\item Para la gestión de datos se puede usar \href{https://min.io/}{minio}, que imita a un servicio S3 en la forma de gestionar buckets y objetos, y se puede desplegar en un contenedor apptainer en local
 	\end{itemize}
 \end{itemize}
 
@@ -298,20 +300,15 @@ La secuencia sería:
 	\item Se usaría el \href{https://gatk.broadinstitute.org/hc/en-us/articles/13832627644443-PathSeqPipelineSpark}{pipeline de GATK para Spark}
 	\item Se ejecutaría en local con Spark standalone
 	\item Los datos son las muestras de personas y de microorganismos
-	\item Hay una primera etapa intensiva (muestra humana), luego hay muchas más ligeras (microorganismos)
-	\item Las ejecuciones de muestras de microorganismos son individuales y se pueden solapar para más carga
-\end{itemize}
-
-\subsection{Tienda hecha con microservicios}
-
-\begin{itemize}
-	\item La tienda es \href{https://github.com/instana/robot-shop}{Instana Robot Shop}
-	\item El estrés se genera con \href{https://locust.io/}{Locust}
-	\item La tienda está formada por una arquitectura de microservicios que se levantan en dockers separados
-	\item En este escenario no se procesan datos, sino peticiones
-	\item Locust se puede modular para simular interacción (peticiones) por parte de un número de usuarios
-	\item Puede ser necesario arrancar varios estresadores Locust porque sino se ven limitados por CPU
-	\item Algún microservicio consume bastante memoria (+10 GiB)
+	\item son 3 etapas
+	\begin{itemize}
+		\item La primera procesa muestras de microorganismos, hay decenas de muestras, se pueden procesar de forma independiente (de 4 en 4, de 6 en 6), cada muestra consume 1 core al 100\% y tarda desde pocos segundos a +10 minutos. Se usa samtools y Java.
+		\item La segunda procesa la muestra humana, hay varias también, se pueden procesar de forma independiente aunque en este caso se usa Spark y se puede especificar el número de cores, por lo que es mejor procesarlas de 1 en 1. Cada muestra tarda, con 32 cores, unos 20 minutos.
+		\item La tercera mapea la muestra humana con la de los microorganismos, se usa Spark pero consume menos que la segunda etapa (aprox· 10 minutos) por lo que se podrían hacer varias simultáneamente.
+	\end{itemize}
+	\item La segunda etapa es intensiva en emoria, requiere $>=$ 64 GiB $\Rightarrow$ Mi servidor local va justo
+	\item \textcolor{blue}{\textbf{Se puede usar Plutón}}
+	\item \textcolor{blue}{\textbf{Se puede usar mi servidor aunque va algo justo}}
 \end{itemize}
 
 \subsection{Suite de benchmarks serverless}
@@ -320,9 +317,29 @@ La secuencia sería:
 	\item \href{https://github.com/spcl/serverless-benchmarks}{SeBS: Serverless Benchmark Suite}
 	\item Se usarían las funciones de compresión (zip), procesamiento de vídeo (ffmpg) y reconocimiento de animales en imagen (pytorch)
 	\item Los datos serían carpetas con muchos ficheros a empaquetar y comprimir, vídeos e imágenes de animales
-	\item Hay 2 datasets usables que en conjunto suman 11.000 imagenes de animales
-	\item La carga viene dada por el número de peticiones y su dificultad
+	\item Hay 2 datasets usables que en conjunto suman 11.000 imágenes de animales
+	\item La carga viene dada por el número de peticiones y su dificultad, se pueden arrancar varios \textit{workers}, cada uno en un contenedor
+	\item Esta suite es la que introdujo minio
+	\item \textcolor{red}{\textbf{\textit{Los dockers no los he podido ejecutar con apptainer $\Rightarrow$ No se puede usar Plutón}}}, pero he podido replicar la función de creación de GIF a partir de un MP4 con un contenedor apptainer, se podrían replicar muchas otras (e.g., compresión, encriptado, transcodificación, detección de animales en imagen)
+	\item \textcolor{blue}{\textbf{Se puede usar mi servidor local}}
+	\item \textcolor{blue}{\textbf{Se puede usar Plutón \textit{con la implementación propia de funciones}}}
 \end{itemize}
+
+\subsection{Tienda hecha con microservicios}
+
+\begin{itemize}
+	\item La tienda es \href{https://github.com/instana/robot-shop}{Instana Robot Shop}, un modelo de ejemplo de una tienda web con un carrito, productos, pagos
+	\item El estrés se genera con \href{https://locust.io/}{Locust}, que simula usuarios haciendo peticiones, clickando en un producto, viendo su descripción, añadiendolo al carrito...
+	\item La tienda está formada por una arquitectura de microservicios que se levantan en dockers separados, se ejecutan con Java
+	\item En este escenario no se procesan datos, sino peticiones
+	\item Locust se puede modular para simular interacción (peticiones) por parte de un número de usuarios
+	\item Puede ser necesario arrancar varios estresadores Locust porque sino se ven limitados por CPU
+	\item Algún microservicio consume bastante memoria (+10 GiB)
+	\item \textcolor{blue}{\textbf{Se puede usar mi servidor local}}
+	\item \textcolor{red}{\textbf{La ejecución de los docker con apptainer no me ha funcionado por algo relacionado con usar el usuario root así como no usar el entrypoint $\Rightarrow$ No se puede usar Plutón (de momento)}}
+\end{itemize}
+
+
 
 
 \subsection{Procesado de eventos tipo clickstream}
@@ -332,7 +349,10 @@ La secuencia sería:
 	\item El dataset se carga en una MongoDB (otras DDBB soportadas) y se emiten queries
 	\item Las queries tienen duraciones distintas, las hay instantáneas, de 1, 10, 20, 30 minutos
 	\item Las queries cargan los workers de la base de datos que consumen CPU
-	\item Las queries también son intensivas en disco
+	\item Las queries también son intensivas en disco 
+	\item \textcolor{blue}{\textbf{Se puede usar mi servidor local}}
+	\item \textcolor{black}{\textbf{Se puede usar Plutón? (pendiente de comprobar)}}
+	\item \textcolor{red}{\textbf{Las queries son intensivas en disco, se requiere mínimo un SSD que soporte 250 MBps (medición empírica, un SSD de gama media/alta debería llegar) para que no tarden demasiado}}
 \end{itemize}
 
 
@@ -347,6 +367,9 @@ La secuencia sería:
 	\item La carga es modulable con una variable `scale', en devops el número de hosts, en iot el de camiones
 	\item La carga puede ser la propia inserción de datos, o la ejecución de queries
 	\item Las queries se generan también con la herramienta y pueden modularse de igual manera con una variable `scale'
+	\item \textcolor{red}{\textbf{No he podido meter PostgreSQL en un contenedor apptainer y sospecho que no se pueda hacer de forma directa dado que postgresql requiere ejecutarse con el usuario postgres y escribir sus datos en un directorio del usuario postgres $\Rightarrow$ No se puede usar Plutón}}
+	\item \textcolor{blue}{\textbf{Se puede usar mi servidor local}}
+	\item \textcolor{red}{\textbf{Experimentos intensos en disco}}
 \end{itemize}
 
 
@@ -354,9 +377,7 @@ La secuencia sería:
 \begin{itemize}
 		
 	\item Reconocimiento facial (e.g., \href{http://vis-www.cs.umass.edu/lfw/}{Faces in the Wild}), en este caso los datos son las caras.
-	
-	\item Encriptado/Cifrado/Hashing de ficheros. Este se podría integrar como extensión de SeBS.
-	
+		
 	\item Procesado de ficheros de texto (e.g., \href{https://github.com/logpai}{logs, LogPai})
 	
 \end{itemize}
