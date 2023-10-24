@@ -336,7 +336,7 @@ La secuencia sería:
 	\item Puede ser necesario arrancar varios estresadores Locust porque sino se ven limitados por CPU
 	\item Algún microservicio consume bastante memoria (+10 GiB)
 	\item \textcolor{blue}{\textbf{Se puede usar mi servidor local}}
-	\item \textcolor{red}{\textbf{La ejecución de los docker con apptainer no me ha funcionado por algo relacionado con usar el usuario root así como no usar el entrypoint $\Rightarrow$ No se puede usar Plutón (de momento)}}
+	\item \textcolor{red}{\textbf{La ejecución de los microservicios en docker con apptainer requiere una adaptación, o bien traduciendo los Dockerfile a Definition files, o bien haciendo pull de los contenedores desde el registro de Docker, arrancándolos y ejecutando manualmente el entrypoint $\Rightarrow$ No se puede usar Plutón (de momento)}}
 \end{itemize}
 
 
@@ -351,7 +351,7 @@ La secuencia sería:
 	\item Las queries cargan los workers de la base de datos que consumen CPU
 	\item Las queries también son intensivas en disco 
 	\item \textcolor{blue}{\textbf{Se puede usar mi servidor local}}
-	\item \textcolor{black}{\textbf{Se puede usar Plutón? (pendiente de comprobar)}}
+	\item \textcolor{black}{\textbf{Se puede usar Plutón? (comprobar)}}
 	\item \textcolor{red}{\textbf{Las queries son intensivas en disco, se requiere mínimo un SSD que soporte 250 MBps (medición empírica, un SSD de gama media/alta debería llegar) para que no tarden demasiado}}
 \end{itemize}
 
@@ -367,9 +367,9 @@ La secuencia sería:
 	\item La carga es modulable con una variable `scale', en devops el número de hosts, en iot el de camiones
 	\item La carga puede ser la propia inserción de datos, o la ejecución de queries
 	\item Las queries se generan también con la herramienta y pueden modularse de igual manera con una variable `scale'
-	\item \textcolor{red}{\textbf{No he podido meter PostgreSQL en un contenedor apptainer y sospecho que no se pueda hacer de forma directa dado que postgresql requiere ejecutarse con el usuario postgres y escribir sus datos en un directorio del usuario postgres $\Rightarrow$ No se puede usar Plutón}}
 	\item \textcolor{blue}{\textbf{Se puede usar mi servidor local}}
-	\item \textcolor{red}{\textbf{Experimentos intensos en disco}}
+	\item \textcolor{black}{\textbf{Se puede usar Plutón? (comprobar)}}
+	\item \textcolor{red}{\textbf{Experimentos intensos en disco (ver experimento de clickstream)}}
 \end{itemize}
 
 
