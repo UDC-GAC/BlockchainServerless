@@ -18,3 +18,7 @@ Stage: build
     mv yq_linux_amd64 /bin/yq
     apt install -y jq
 
+    # Install Gridcoin
+    add-apt-repository ppa:gridcoin/gridcoin-stable
+    apt update
+    apt install gridcoinresearchd

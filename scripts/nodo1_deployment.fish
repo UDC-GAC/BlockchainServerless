@@ -22,7 +22,6 @@ echo "127.0.0.1 couchdb" >> myhosts
 echo "127.0.0.1 orchestrator" >> myhosts
 echo "10.10.255.232 host0" >> myhosts
 
-
 # Levantar el contenedor de SC
 apptainer instance start --hostname sc --bind /home/jonatan.enes/myhosts:/etc/hosts sc.sif sc
 
@@ -31,11 +30,15 @@ tmux new -s "Orchestrator" "apptainer exec instance://sc bash ServerlessContaine
 apptainer exec instance://sc bash ServerlessContainers/conf/create_basics.sh
 apptainer exec instance://sc bash ServerlessContainers/conf/subscribe_all.sh
 
-
 # Arrancar los otros servicios
 tmux new -s "Guardian" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/guardian/start.sh"
 tmux new -s "Scaler" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/scaler/start.sh"
 tmux new -s "DatabaseSnapshoter" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/database_snapshoter/start.sh"
 tmux new -s "StructuresSnapshoter" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/structure_snapshoter/start.sh"
+
+# Activar el escalado
+apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Structures/set_to_guarded.sh cont0
+apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Structures/set_resource_to_guarded.sh cont0 cpu
+
 
 
