@@ -21,4 +21,4 @@ Stage: build
     # Install Gridcoin
     add-apt-repository ppa:gridcoin/gridcoin-stable
     apt update
-    apt install gridcoinresearchd
+    apt install -y gridcoinresearchd

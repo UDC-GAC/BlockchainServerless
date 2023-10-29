@@ -35,10 +35,13 @@ tmux new -s "Guardian" "apptainer exec instance://sc bash ServerlessContainers/s
 tmux new -s "Scaler" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/scaler/start.sh"
 tmux new -s "DatabaseSnapshoter" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/database_snapshoter/start.sh"
 tmux new -s "StructuresSnapshoter" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/structure_snapshoter/start.sh"
+tmux new -s "Refeeder" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/refeeder/start.sh"
+tmux new -s "CreditManager" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/credit_manager/start.sh"
 
 # Activar el escalado
 apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Structures/set_to_guarded.sh cont0
 apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Structures/set_resource_to_guarded.sh cont0 cpu
-
-
-
+apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Scaler/activate.sh
+apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/activate.sh
+apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/activate_rule.sh default "CpuRescaleUp"
+apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/activate_rule.sh default "CpuRescaleDown"

@@ -1,0 +1,39 @@
+{
+  "timeseries": [
+    {
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "user.accounting.coins",
+          "tags": [
+            "user=user0"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 10,
+        "ymin": 0
+      }
+    },{
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "user.accounting.consumed",
+          "tags": [
+            "user=user0"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "user.accounting.credit",
+          "tags": [
+            "user=user0"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 1000,
+        "ymin": 0
+      }
+    }
+  ]
+}

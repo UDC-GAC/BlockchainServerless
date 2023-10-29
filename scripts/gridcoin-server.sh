@@ -19,10 +19,13 @@ staking=0
 
 server=1
 rpcallowip=192.168.51.1
+rpcallowip=192.168.51.100
+rpcallowip=192.168.51.240
+rpcallowip=192.168.10.1
 rpcallowip=192.168.10.10
 rpcallowip=192.168.10.16
-rpcallowip=192.168.51.100
 rpcallowip=127.0.0.1
+rpcallowip=193.144.50.12
 rpcport=9090
 rpcuser=gridcoinrpc
 rpcpassword=Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV
@@ -34,7 +37,17 @@ sudo apt update
 sudo apt install gridcoinresearchd
 
 # Para arrancar el servidor es, HAY QUE ESPERAR UNOS SEGUNDOS POR LA SINCRONIZACIÓN DE BLOQUES
-gridcoinresearchd
+gridcoinresearchd -debug -printtoconsole
+
+vim gridcoin-run.sh
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if [ -z "$1" ]
+then
+      echo "RPC command was not provided"
+      exit 1
+fi
+gridcoinresearchd -rpcconnect=192.168.51.100 -rpcport=9090 -rpcuser=gridcoinrpc -rpcpassword=Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV "$@"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Comandos ejemplos que se pueden ejecutar
 bash gridcoin-run.sh listaccounts
