@@ -6,3 +6,4 @@ Stage: build
 %post
    apt update
    apt install -y vim htop
+   echo "admin = admin" >> /opt/couchdb/etc/local.ini
