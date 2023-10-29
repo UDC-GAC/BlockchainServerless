@@ -2,15 +2,12 @@ Bootstrap: localimage
 From: base.sif
 Stage: build
 
-%environment
-   export POST_ENDPOINT_PATH="http://dante.dec.udc.es:9000/api/put"
-
 %post
     # Install BDWatchdog dependencies
-    wget https://raw.githubusercontent.com/UDC-GAC/BDWatchdog/master/MetricsFeeder/requirements.txt    
-    pip install -r requirements.txt
+    #wget https://raw.githubusercontent.com/UDC-GAC/BDWatchdog/master/MetricsFeeder/requirements.txt
+    #pip install -r requirements.txt
 
-    # Install Serverless Contaners dependencies
+    # Install Serverless Containers dependencies
     wget https://raw.githubusercontent.com/UDC-GAC/ServerlessContainers/master/requirements.txt
     wget https://raw.githubusercontent.com/UDC-GAC/ServerlessContainers/master/install.sh
     apt update

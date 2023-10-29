@@ -1,0 +1,9 @@
+Bootstrap: localimage
+From: base.sif
+Stage: build
+
+%post
+    # Install BDWatchdog dependencies
+    wget https://raw.githubusercontent.com/UDC-GAC/BDWatchdog/master/MetricsFeeder/requirements.txt    
+    pip install -r requirements.txt
+
