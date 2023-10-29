@@ -1,0 +1,15 @@
+Bootstrap: localimage
+From: base.sif
+Stage: build
+
+%post
+   	
+	# Java 17
+	apt update
+	apt install -y ffmpeg
+	
+	
+	
+    
+    
+
