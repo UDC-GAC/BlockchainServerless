@@ -1,5 +1,5 @@
 Bootstrap: localimage
-From: base.sif
+From: experiment.sif
 Stage: build
 
 %post

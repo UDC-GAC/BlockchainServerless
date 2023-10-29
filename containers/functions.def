@@ -1,10 +1,9 @@
 Bootstrap: localimage
-From: base.sif
+From: experiment.sif
 Stage: build
 
 %post
    	
-	# Java 17
 	apt update
 	apt install -y ffmpeg
 	

@@ -45,3 +45,8 @@ apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Scal
 apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/activate.sh
 apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/activate_rule.sh default "CpuRescaleUp"
 apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/activate_rule.sh default "CpuRescaleDown"
+
+
+apptainer exec instance://sc bash ServerlessContainers/conf/desubscribe_all.sh
+
+
