@@ -1,0 +1,8 @@
+Bootstrap: docker
+From: mongo:latest
+Stage: build
+
+
+%post
+   apt update
+   apt install -y git build-essential htop tmux vim screenfetch unzip

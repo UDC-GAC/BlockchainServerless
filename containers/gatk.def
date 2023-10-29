@@ -1,0 +1,23 @@
+Bootstrap: localimage
+From: base.sif
+Stage: build
+
+%post
+   	
+	# Java 17
+	apt update
+	apt install -y openjdk-17-jdk
+	apt install -y openjdk-17-jre
+	
+	# Samtools
+	apt install -y samtools
+	
+	# Git LFS
+	apt install -y git-lfs
+	apt install -y python3-venv
+	#pip3 install --user pyspark spark-submit
+	#pip3 install pyspark spark-submit
+	
+    
+    
+

@@ -1,0 +1,8 @@
+Bootstrap: docker
+From: couchdb:latest
+Stage: build
+
+
+%post
+   apt update
+   apt install -y vim htop
