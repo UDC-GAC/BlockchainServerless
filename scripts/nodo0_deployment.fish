@@ -37,13 +37,25 @@ mc admin info myminio
 mc mb myminio/test
 mc cp base.sif myminio/test/test.sif
 mc mb myminio/gatk/sample/input
+mc mb myminio/gatk/sample/processing
 mc mb myminio/gatk/sample/output
-mc mb myminio/gatk/identify/input
-mc mb myminio/gatk/identify/output
 mc mb myminio/functions/gif/input
+mc mb myminio/functions/gif/processing
 mc mb myminio/functions/gif/output
 mc mb myminio/functions/transcode/input
+mc mb myminio/functions/transcode/processing
 mc mb myminio/functions/transcode/output
+
+mc mb myminio/stress/input
+mc mb myminio/stress/processing
+mc mb myminio/stress/output
+
+mkdir -p tasks/stress/
+vim tasks/stress/run-load.sh
+
+touch 2-120.txt
+mc cp 2-120.txt myminio/stress/input
+
 
 
 
