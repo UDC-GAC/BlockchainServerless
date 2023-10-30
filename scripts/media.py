@@ -7,10 +7,10 @@ from minio.error import S3Error
 app = Flask(__name__)
 
 # MinIO configuration
-minio_endpoint = "10.23.0.2:9000"
-minio_access_key = "Rb5OCEAk9ODMDEIuYKIe"
-minio_secret_key = "vJqQ54bPGvSLXHOiMLlbTapTR3qULpQDwZxBLdxL"
-minio_bucket_name = "videos"
+minio_endpoint = "10.10.255.231:9000"
+minio_access_key = "minioadmin"
+minio_secret_key = "minioadmin"
+minio_bucket_name = "functions"
 
 # Initialize MinIO client
 minio_client = Minio(

@@ -1,0 +1,15 @@
+Bootstrap: localimage
+From: base.sif
+Stage: build
+
+%environment
+    export IP="193.144.50.38"
+    export PORT="9090"
+    export USER="gridcoinrpc"
+    export PASS="Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV"
+
+%post
+    # Install Gridcoin
+    add-apt-repository ppa:gridcoin/gridcoin-stable
+    apt update
+    apt install -y gridcoinresearchd

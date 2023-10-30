@@ -15,21 +15,37 @@ sed -i 's/lxc/apptainer/g' ServerlessContainers/services_config.yml
 
 # Construir los contenedores
 apptainer build --force base.sif base.def
+apptainer build --force experiment.sif experiment.def
+
 
 # Descargar el script de Oscar para cambiar permisos
 wget https://raw.githubusercontent.com/UDC-GAC/ServerlessYARN/master/ansible/provisioning/scripts/change_cgroupsv1_permissions.py
 
 # Arrancar el contenedor de experimentacion
-set -gx CONT_NAME "cont0"
-touch cgroups_file.toml
-sudo apptainer instance start --hostname {$CONT_NAME} --apply-cgroups cgroups_file.toml experiment.sif {$CONT_NAME}
-python3 change_cgroupsv1_permissions.py apptainer singularity {$CONT_NAME}
-# Arrancar el MetricsFeeder en el contenedor de experimentos
-tmux new -s "ATOP" "sudo apptainer exec instance://cont0 bash /home/jonatan.enes/BDWatchdog/MetricsFeeder/scripts/run_atop_stream.sh"
+bash start_container.sh
 
 # Arrancar el Node Scaler
-source ServerlessContainers/set_pythonpath.fish
-tmux new -s "NODE_SCALER" "python3 ServerlessContainers/src/NodeRescaler/NodeRescaler.py"
+tmux new -s "NODE_SCALER" "source ServerlessContainers/set_pythonpath.sh && python3 ServerlessContainers/src/NodeRescaler/NodeRescaler.py"
+
+# Descarga el cliente de minio y configuralo
+curl https://dl.min.io/client/mc/release/linux-amd64/mc -o .local/bin/mc
+chmod +x .local/bin/mc
+mc alias set 'myminio' 'http://10.10.255.231:9000' 'minioadmin' 'minioadmin'
+mc admin info myminio
+
+# Crear buckets, directorios y probar
+mc mb myminio/test
+mc cp base.sif myminio/test/test.sif
+mc mb myminio/gatk/sample/input
+mc mb myminio/gatk/sample/output
+mc mb myminio/gatk/identify/input
+mc mb myminio/gatk/identify/output
+mc mb myminio/functions/gif/input
+mc mb myminio/functions/gif/output
+mc mb myminio/functions/transcode/input
+mc mb myminio/functions/transcode/output
+
+
 
 
 
