@@ -3,7 +3,7 @@
   "resources": {
     "cpu": {
       "max": 200,
-      "current": 200,
+      "current": 100,
       "min": 20,
       "boundary": 20,
       "guard": true
