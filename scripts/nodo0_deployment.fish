@@ -10,19 +10,22 @@ git clone https://github.com/UDC-GAC/BDWatchdog.git
 sed -i 's/opentsdb/193.144.50.38/g' BDWatchdog/services_config.yml
 
 # Clonar Serverless Containers en el home de Pluton, la rama de experimentacion blockchain
-git clone -b blockchain-experiments https://github.com/UDC-GAC/ServerlessContainers
-sed -i 's/lxc/apptainer/g' ServerlessContainers/services_config.yml
+#git clone -b blockchain-experiments https://github.com/UDC-GAC/ServerlessContainers
 
-# Construir los contenedores
-apptainer build --force base.sif base.def
-apptainer build --force experiment.sif experiment.def
+# Construir los contenedores de HOST_0
+apptainer build --force base.sif BlockchainServerless/containers/base.def
+apptainer build --force experiment.sif BlockchainServerless/containers/experiment.def
 
+# Construir los contenedores de HOST_1
+apptainer build --force couchdb.sif BlockchainServerless/containers/my_couchdb.def
+apptainer build --force sc.sif BlockchainServerless/containers/sc.def
+apptainer build --force gridcoin.sif BlockchainServerless/containers/gridcoin.def
+
+# Levantar el contenedor de SC
+apptainer instance start --hostname sc --bind /home/jonatan.enes/myhosts:/etc/hosts sc.sif sc
 
 # Descargar el script de Oscar para cambiar permisos
 wget https://raw.githubusercontent.com/UDC-GAC/ServerlessYARN/master/ansible/provisioning/scripts/change_cgroupsv1_permissions.py
-
-# Arrancar el contenedor de experimentacion
-bash start_container.sh
 
 # Arrancar el Node Scaler
 tmux new -s "NODE_SCALER" "source ServerlessContainers/set_pythonpath.sh && python3 ServerlessContainers/src/NodeRescaler/NodeRescaler.py"
@@ -30,7 +33,7 @@ tmux new -s "NODE_SCALER" "source ServerlessContainers/set_pythonpath.sh && pyth
 # Descarga el cliente de minio y configuralo
 curl https://dl.min.io/client/mc/release/linux-amd64/mc -o .local/bin/mc
 chmod +x .local/bin/mc
-mc alias set 'myminio' 'http://10.10.255.231:9000' 'minioadmin' 'minioadmin'
+mc alias set 'myminio' "http://$HOST_1:9000" 'minioadmin' 'minioadmin'
 mc admin info myminio
 
 # Crear buckets, directorios y probar
@@ -42,21 +45,23 @@ mc mb myminio/gatk/sample/output
 mc mb myminio/functions/gif/input
 mc mb myminio/functions/gif/processing
 mc mb myminio/functions/gif/output
-mc mb myminio/functions/transcode/input
-mc mb myminio/functions/transcode/processing
-mc mb myminio/functions/transcode/output
-
 mc mb myminio/stress/input
 mc mb myminio/stress/processing
 mc mb myminio/stress/output
 
-mkdir -p tasks/stress/
-vim tasks/stress/run-load.sh
+# Arrancar el manager
 
-touch 2-120.txt
-mc cp 2-120.txt myminio/stress/input
+############################################
 
 
+
+
+sleep 10
+python3 BDWatchdog/TimestampsSnitch/src/timestamping/signal_test.py start exp_test test0 --push --username root
+sleep 20
+python3 BDWatchdog/TimestampsSnitch/src/timestamping/signal_test.py end exp_test test0 --push --username root
+sleep 10
+python3 BDWatchdog/TimestampsSnitch/src/timestamping/signal_experiment.py end exp_test --push --username root
 
 
 

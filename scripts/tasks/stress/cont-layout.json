@@ -5,14 +5,17 @@
       "max": 200,
       "current": 200,
       "min": 20,
-      "boundary": 20
+      "boundary": 20,
+      "guard": true
     },
     "mem": {
       "max": 4192,
       "current": 2048,
       "min": 256,
-      "boundary": 128
+      "boundary": 128,
+      "guard": false
     }
   },
-  "host": "host0"
+  "host": "host0",
+  "guard": false
 }

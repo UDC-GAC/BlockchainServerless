@@ -22,12 +22,6 @@
           "tags": [
             "user=user0"
           ]
-        },{
-          "aggregator": "zimsum",
-          "metric": "user.accounting.credit",
-          "tags": [
-            "user=user0"
-          ]
         }
       ],
       "yranges": {

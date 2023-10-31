@@ -1,0 +1,3 @@
+export HOST_0="10.10.255.233"
+export HOST_1="10.10.255.232"
+export MONGODB_IP="193.144.50.38"
