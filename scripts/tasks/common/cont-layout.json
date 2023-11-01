@@ -2,8 +2,8 @@
   "name": "cont0",
   "resources": {
     "cpu": {
-      "max": 200,
-      "current": 100,
+      "max": 400,
+      "current": 200,
       "min": 20,
       "boundary": 20,
       "guard": true

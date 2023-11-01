@@ -64,11 +64,12 @@ def data_present_in_path(bucket, path):
 
 
 def start_container(bucket):
-    subprocess.run(["bash", "{0}/tasks/{1}/start_container.sh".format(SCRIPTS_BASE_PATH, bucket)])
+    p = subprocess.run(["bash", "{0}/tasks/common/start_container.sh".format(SCRIPTS_BASE_PATH)])
+    return p.returncode == 0
 
 
 def stop_container(bucket):
-    subprocess.run(["bash", "{0}/tasks/{1}/stop_container.sh".format(SCRIPTS_BASE_PATH, bucket)])
+    subprocess.run(["bash", "{0}/tasks/common/stop_container.sh".format(SCRIPTS_BASE_PATH)])
 
 
 def run_new_task(bucket):
@@ -91,7 +92,7 @@ def get_user_status(user_info):
     user_min_balance = user_info["accounting"]["min_balance"]
     if user_balance > user_min_balance and user_balance > 0:
         status = "normal"
-    elif user_balance < user_min_balance and user_balance >= 0:
+    elif user_balance <= user_min_balance and user_balance >= 0:
         status = "broke"
     elif user_balance < 0 and user_balance > user_max_debt:
         status = "indebt"
@@ -119,17 +120,28 @@ def print_user_info(user, user_status):
         us_acc["coins"], us_acc["min_balance"], us_acc["max_debt"], us_acc["policy"]))
 
     if user_status == "normal":
-        print("Enough credit, can run unrestricted, start tasks and containers")
+        print("[Normal] Enough credit, can run unrestricted, start tasks and containers")
     elif user_status == "broke" and us_acc["policy"] == "greedy":
-        print("Scarce credit with 'greedy' policy, can run unrestricted, start tasks and containers")
+        print("[Broke] Scarce credit with 'greedy' policy, can run unrestricted, start tasks and containers")
     elif user_status == "broke" and us_acc["policy"] == "conservative":
-        print("Scarce credit with 'conservative' policy, can run unrestricted, can't start tasks or containers")
+        print("[Broke] Scarce credit with 'conservative' policy, can run unrestricted, can't start tasks or containers")
     elif user_status == "indebt":
-        print("Debt, restricted execution, can't start tasks or containers")
+        print("[Indebt] Debt, restricted execution, can't start tasks or containers")
     elif user_status == "scammer":
-        print("Heavy Debt, stopping container")
+        print("[Scammer] Heavy Debt, if running stop the container")
+    else:
+        print("[{0}] User status unknown".format(user_status))
 
-
+def start_container_process(bucket):
+    print("Starting container")
+    success = start_container(bucket)
+    if success:
+        print("Waiting a few seconds so that the container can send usage metrics")
+        time.sleep(10)
+        print("Running new task")
+        run_new_task(bucket)
+    else:
+        print("Could not start the container")
 
 
 if __name__ == '__main__':
@@ -151,7 +163,7 @@ if __name__ == '__main__':
         user_policy = user["accounting"]["policy"]
 
         if container_running:
-            if user_status in ["normal", "broke"]:
+            if user_status in ["normal"]:
                 if data_in_processing:
                     pass
                 elif data_in_input:
@@ -159,11 +171,21 @@ if __name__ == '__main__':
                     run_new_task(bucket)
                 else:
                     pass
+            elif user_status in ["broke"]:
+                if data_in_processing:
+                    pass
+                elif data_in_input:
+                    if user_policy == "greedy":
+                        print("Running new task")
+                        run_new_task(bucket)
+                    else:
+                        print("User policy does not allow to start a new task")
+                else:
+                    pass
             elif user_status in ["indebt"]:
                 if data_in_processing:
                     pass
                 elif data_in_input:
-                    pass
                     print("Because user is in debt, no new tasks is started")
                 else:
                     pass
@@ -171,14 +193,17 @@ if __name__ == '__main__':
                 print("Stopping the running container")
                 stop_container(bucket)
         else:
-            if user_status in ["normal", "broke"]:
+            if user_status in ["normal"]:
                 if data_in_input:
-                    print("Starting container")
-                    start_container(bucket)
-                    print("Waiting a few seconds so that the container can send usage metrics")
-                    time.sleep(6)
-                    print("Running new task")
-                    run_new_task(bucket)
+                    start_container_process(bucket)
+                else:
+                    pass
+            elif user_status in ["broke"]:
+                if data_in_input:
+                    if user_policy == "greedy":
+                        start_container_process(bucket)
+                    else:
+                        print("User policy does not allow to start a container")
                 else:
                     pass
             elif user_status in ["indebt", "scammer"]:

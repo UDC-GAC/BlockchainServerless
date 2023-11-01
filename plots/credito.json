@@ -11,22 +11,8 @@
         }
       ],
       "yranges": {
-        "ymax": 5,
-        "ymin": -3
-      }
-    },{
-      "metrics": [
-        {
-          "aggregator": "zimsum",
-          "metric": "user.accounting.consumed",
-          "tags": [
-            "user=user0"
-          ]
-        }
-      ],
-      "yranges": {
-        "ymax": 100,
-        "ymin": 0
+        "ymax": 30,
+        "ymin": -5
       }
     }
   ]

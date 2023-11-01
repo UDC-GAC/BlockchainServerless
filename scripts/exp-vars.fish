@@ -1,3 +1,6 @@
+# compute-2-0 -> 10.10.255.233
+# compute-2-1 -> 10.10.255.232
+
 set -gx HOST_0 10.10.255.233
 set -gx HOST_1 10.10.255.232
 set -gx COUCHDB_DATA "/scratch2/couchdb-data"
