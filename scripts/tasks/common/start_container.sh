@@ -41,4 +41,8 @@ if [[ ${http_code1} -ne "200" ]] || [[ ${http_code2} -ne "200" ]]; then
   sudo apptainer instance stop ${CONT_NAME}
   exit 1
 fi
+
+echo "Waiting a few seconds so that the container can send usage metrics"
+sleep 10
+
 echo "----------------------"

@@ -37,7 +37,7 @@ ORCHESTRATOR_URL = "{0}:5000".format(HOST_1)
 username = "user0"
 contname = "cont0"
 bucket = "stress"
-images = {"stress":"experiment"}
+images = {"stress": "experiment"}
 
 # MinIO configuration
 minio_endpoint = "{0}:9000".format(HOST_1)
@@ -67,16 +67,11 @@ def get_user_info(user_name):
 def data_in_bucket_path(bucket, path):
     try:
         objects = minio_client.list_objects(bucket, prefix=path)
-        # print("###########")
-        # print("{0}".format(path))
-        # print("###########")
         objects_list = list()
         for obj in objects:
             if obj.object_name == path:
                 continue  # Skip this one (usually the first one) as it is the dir
-            # print(obj.object_name)
             objects_list.append(obj)
-        # print("-------------")
         return objects_list
     except S3Error as e:
         printerr("Error listing files for path {0} in bucket {1}".format(path, bucket))
@@ -99,27 +94,49 @@ def start_container(bucket):
 def stop_container(bucket):
     subprocess.run(["bash", "{0}/tasks/common/stop_container.sh".format(SCRIPTS_BASE_PATH), contname, images[bucket]])
 
-def run_in_worker_process(command, new_task, bucket):
-    logname = "out-task-{0}".format(new_task)
+def run_in_worker_process(command, taskname, bucket):
+    logname = "out-task-{0}".format(taskname)
     logfile = "/tmp/{0}".format(logname)
     with open(logfile, "w") as outfile:
-        subprocess.run(command, stdout=outfile)
+        p = subprocess.run(command, stdout=outfile)
+        if p.returncode != 0:
+            printerr("There was an error running user's script for task '{0}' of type '{1}'".format(taskname, bucket))
+            printerr("Moving back the file to 'input'")
+            move_task_between_dirs(bucket, "processing", "input", taskname)
+        else:
+            myprint("Task for '{0}' finished successfully".format(taskname))
+            myprint("Moving file to 'output'")
+            move_task_between_dirs(bucket, "processing", "output", taskname)
     minio_client.fput_object(bucket, "logs/{0}".format(logname), logfile)
 
 def run_new_task(bucket):
     objects = data_in_bucket_path(bucket, "input/")
-    new_task = objects[0].object_name
-    new_task = new_task.replace("input/", "")
-    myprint("Will run new task of type '{0}' with file '{1}'".format(bucket, new_task))
+
+    # Get the file to process (task)
+    taskname = objects[0].object_name.replace("input/", "")
+    myprint("Will run new task of type '{0}' with file '{1}'".format(bucket, taskname))
+
+    # Get the script to run with the task
+    local_path_script = "/tmp/{0}-process_task.sh".format(bucket)
     try:
-        local_path = "/tmp/{0}-process_task.sh".format(bucket)
-        minio_client.fget_object(bucket, "utils/process_task.sh", local_path)
+        minio_client.fget_object(bucket, "utils/process_task.sh", local_path_script)
     except S3Error:
         printerr("Could not retrieve script to process task of type {0}".format(bucket))
         printerr("Script should be named '{0}' and be located in '{1}'".format("process_task.sh", "{0}/utils/".format(bucket)))
         return
-    command = ["bash", local_path, contname, new_task]
-    worker_process = Process(target=run_in_worker_process, args=(command, new_task, bucket))
+
+    # Move the file to process from input to processing
+    move_task_between_dirs(bucket, "input", "processing", taskname)
+
+    # Download the file locally
+    local_path_taskfile = "/tmp/{0}".format(taskname)
+    minio_client.fget_object(bucket, "processing/{0}".format(taskname), local_path_taskfile)
+
+    # Run the user's script with the file and inside a container
+    command = ["sudo", "apptainer", "exec", "instance://{0}".format(contname), "bash", local_path_script, local_path_taskfile]
+
+    # Run with a process in background
+    worker_process = Process(target=run_in_worker_process, args=(command, taskname, bucket))
     worker_process.start()
 
 
@@ -144,18 +161,22 @@ def get_user_status(user_info):
     return status
 
 
-def move_tasks_processing_input(bucket):
+def move_task_between_dirs(bucket, dir1, dir2, filename):
+    try:
+        source = "{0}/{1}".format(dir1, filename)
+        minio_client.copy_object(
+            bucket, "{0}/{1}".format(dir2, filename),
+            CopySource(bucket, source))
+        minio_client.remove_object(bucket, source)
+    except (ValueError, S3Error):
+        printerr("Error moving the file {0}".format(filename))
+
+def move_tasks_processing_to_input(bucket):
     tasks = data_in_bucket_path(bucket, "processing/")
-    for task in tasks:
-        taskpath = task.object_name
-        taskname = task.object_name.replace("processing/", "")
-        try:
-            minio_client.copy_object(
-                bucket, "{0}/{1}".format("input", taskname),
-                CopySource(bucket, taskpath))
-            minio_client.remove_object(bucket, taskpath)
-        except (ValueError, S3Error):
-            printerr("Error moving the file {0}".format(taskpath))
+    for task_object in tasks:
+        filename=task_object.object_name.replace("processing/", "")
+        print("Moving {0}".format(filename))
+        move_task_between_dirs(bucket, "processing", "input", filename)
 
 def print_status_message(message, cond):
     if cond:
@@ -190,8 +211,6 @@ def start_container_process(bucket):
     myprint("Starting container")
     success = start_container(bucket)
     if success:
-        myprint("Waiting a few seconds so that the container can send usage metrics")
-        time.sleep(10)
         myprint("Running new task")
         run_new_task(bucket)
     else:
@@ -248,7 +267,7 @@ if __name__ == '__main__':
             if data_in_processing:
               myprint("There is data allegedly being processed but no container is up")
               myprint("Returning tasks from 'processing' to 'input'")
-              move_tasks_processing_input(bucket)
+              move_tasks_processing_to_input(bucket)
             elif user_status in ["normal"]:
                 if data_in_input:
                     start_container_process(bucket)
