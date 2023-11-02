@@ -1,6 +1,21 @@
 scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
-source ${scriptDir}/vars.sh
 source ${scriptDir}/../../exp-vars.sh
+
+if [ "$#" -lt 2 ]
+then
+  echo "2 arguments are needed:"
+  echo " + the name of the container to stop"
+  echo " + the name of the container image"
+  exit 1
+fi
+
+CONT_NAME=$1
+SIF_IMAGE="/home/jonatan.enes/$2.sif"
+
+echo "----------------------"
+echo "Container start script"
+echo "Container will be named ${CONT_NAME}"
+echo "Container image used will be ${SIF_IMAGE}"
 
 echo "" > cgroups_file.toml
 sudo apptainer instance start --hostname ${CONT_NAME} --apply-cgroups cgroups_file.toml ${SIF_IMAGE} ${CONT_NAME}
@@ -26,3 +41,4 @@ if [[ ${http_code1} -ne "200" ]] || [[ ${http_code2} -ne "200" ]]; then
   sudo apptainer instance stop ${CONT_NAME}
   exit 1
 fi
+echo "----------------------"

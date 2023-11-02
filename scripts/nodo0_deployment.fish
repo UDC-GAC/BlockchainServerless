@@ -8,6 +8,7 @@
 # Configurar las variables de entorno
 vim BlockchainServerless/scripts/exp-vars.sh
 vim BlockchainServerless/scripts/exp-vars.fish
+source BlockchainServerless/scripts/exp-vars.sh
 
 # Clonar BDWatchdog en el home de Pluton
 git clone https://github.com/UDC-GAC/BDWatchdog.git
@@ -56,6 +57,8 @@ mc admin info myminio
 mc mb myminio/stress/input
 mc mb myminio/stress/processing
 mc mb myminio/stress/output
+mc mb myminio/stress/logs
+mc mb myminio/stress/utils
 
 
 

@@ -3,15 +3,15 @@ function generate_load {
   LOAD="0.1-150" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
   LOAD="1.2-100" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
   LOAD="2.1-100" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
-  LOAD="3.3-100" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
+  LOAD="3.3-200" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
   LOAD="4.1-101" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
   LOAD="5.2-101" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
   LOAD="6.1-50" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
   echo "Waiting"
-  sleep 750
+  sleep 810
   LOAD="7.2-200" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
   echo "Waiting"
-  sleep 250
+  sleep 210
 
 #  LOAD="1-300" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
 #  sleep 310
@@ -73,12 +73,14 @@ function stop_container {
 }
 
 function set_user_credit {
-  START_CREDIT=25
+  START_CREDIT=40
   echo "Setting user credit"
+  activate_accounting
   bash BlockchainServerless/scripts/gridcoin/set_zero_balance.sh
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/set_accounting_pending_zero.sh user0
   apptainer exec instance://grc bash BlockchainServerless/scripts/gridcoin/gridcoin-run.sh move sink user0 ${START_CREDIT}
-  sleep 10
+  sleep 15
+  deactivate_accounting
 }
 
 function flush_remaining_consumed {

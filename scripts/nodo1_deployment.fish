@@ -4,6 +4,8 @@
 # usado para levantar el framework de Serverless Containers y cualquier 
 # otro programa necesario para la ejecucion de los experimentos
 
+source BlockchainServerless/scripts/exp-vars.fish
+
 # Levantar la StateDatabase (Couchdb)
 rm -Rf {$COUCHDB_DATA} && mkdir {$COUCHDB_DATA}
 apptainer instance start --bind {$COUCHDB_DATA}:/opt/couchdb/data --hostname couchdb couchdb.sif couchdb
