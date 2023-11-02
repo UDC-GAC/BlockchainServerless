@@ -6,7 +6,7 @@ import subprocess
 from minio import Minio
 from minio.error import S3Error
 from minio.commonconfig import CopySource
-from multiprocessing import Process
+from multiprocessing import Process, Value
 
 from termcolor import colored
 
@@ -38,6 +38,7 @@ username = "user0"
 contname = "cont0"
 bucket = "stress"
 images = {"stress": "experiment"}
+cont_last_finished_task = Value('i', -1)
 
 # MinIO configuration
 minio_endpoint = "{0}:9000".format(HOST_1)
@@ -94,7 +95,7 @@ def start_container(bucket):
 def stop_container(bucket):
     subprocess.run(["bash", "{0}/tasks/common/stop_container.sh".format(SCRIPTS_BASE_PATH), contname, images[bucket]])
 
-def run_in_worker_process(command, taskname, bucket):
+def run_in_worker_process(command, taskname, bucket, cont_last_finished_task):
     logname = "out-task-{0}".format(taskname)
     logfile = "/tmp/{0}".format(logname)
     with open(logfile, "w") as outfile:
@@ -108,6 +109,16 @@ def run_in_worker_process(command, taskname, bucket):
             myprint("Moving file to 'output'")
             move_task_between_dirs(bucket, "processing", "output", taskname)
     minio_client.fput_object(bucket, "logs/{0}".format(logname), logfile)
+    cont_last_finished_task.value = int(time.time())
+
+def check_container_timeout(bucket, contname):
+    TIMEOUT = 60
+    idle_time = int(time.time()) - cont_last_finished_task.value
+    if idle_time > TIMEOUT:
+        myprint("Container {0} has exceeded timeout ({1}), stopping".format(contname, TIMEOUT))
+        stop_container(bucket)
+    else:
+        myprint("Container {0} has now been running for {1} idle seconds".format(contname, idle_time))
 
 def run_new_task(bucket):
     objects = data_in_bucket_path(bucket, "input/")
@@ -136,7 +147,7 @@ def run_new_task(bucket):
     command = ["sudo", "apptainer", "exec", "instance://{0}".format(contname), "bash", local_path_script, local_path_taskfile]
 
     # Run with a process in background
-    worker_process = Process(target=run_in_worker_process, args=(command, taskname, bucket))
+    worker_process = Process(target=run_in_worker_process, args=(command, taskname, bucket, cont_last_finished_task))
     worker_process.start()
 
 
@@ -218,8 +229,6 @@ def start_container_process(bucket):
 
 
 if __name__ == '__main__':
-
-
     while True:
         container_running = container_is_running(contname)
         data_in_input = data_present_in_path(bucket, "input/")
@@ -241,7 +250,7 @@ if __name__ == '__main__':
                     myprint("Running new task")
                     run_new_task(bucket)
                 else:
-                    pass
+                    check_container_timeout(bucket, contname)
             elif user_status in ["broke"]:
                 if data_in_processing:
                     pass
@@ -252,14 +261,14 @@ if __name__ == '__main__':
                     else:
                         myprint("User policy does not allow to start a new task")
                 else:
-                    pass
+                    check_container_timeout(bucket, contname)
             elif user_status in ["indebt"]:
                 if data_in_processing:
                     pass
                 elif data_in_input:
                     myprint("Because user is in debt, no new tasks is started")
                 else:
-                    pass
+                    check_container_timeout(bucket, contname)
             elif user_status in ["scammer"]:
                 myprint("Stopping the running container")
                 stop_container(bucket)
