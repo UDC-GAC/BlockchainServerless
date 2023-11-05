@@ -5,9 +5,13 @@
 
 # Tambien se pondrán aquí los comandos comunes a cualquier nodo de experimentación
 
+exit 0 # Este script aun no soporta la ejecución automatizada
+
 # Configurar las variables de entorno
 vim BlockchainServerless/scripts/exp-vars.sh
 vim BlockchainServerless/scripts/exp-vars.fish
+
+# Exportarlas
 source BlockchainServerless/scripts/exp-vars.sh
 
 # Clonar BDWatchdog en el home de Pluton
@@ -27,6 +31,9 @@ apptainer build --force couchdb.sif BlockchainServerless/containers/my_couchdb.d
 apptainer build --force sc.sif BlockchainServerless/containers/sc.def
 apptainer build --force gridcoin.sif BlockchainServerless/containers/gridcoin.def
 
+# Descargar la imagen de MinIO
+apptainer pull docker://quay.io/minio/minio
+
 # Crear el fichero 'myhosts'
 cat /etc/hosts > myhosts
 echo "193.144.50.38 opentsdb" >> myhosts
@@ -42,12 +49,14 @@ apptainer instance start --hostname grc gridcoin.sif grc
 bash BlockchainServerless/scripts/gridcoin/set_zero_balance.sh
 apptainer exec instance://grc bash BlockchainServerless/scripts/gridcoin/gridcoin-run.sh listaccounts
 
-
 # Descargar el script de Oscar para cambiar permisos
 wget https://raw.githubusercontent.com/UDC-GAC/ServerlessYARN/master/ansible/provisioning/scripts/change_cgroupsv1_permissions.py
 
 # Arrancar el Node Scaler
-tmux new -s "NODE_SCALER" "source ServerlessContainers/set_pythonpath.sh && python3 ServerlessContainers/src/NodeRescaler/NodeRescaler.py"
+tmux new -d -s "NODE_SCALER" "source ServerlessContainers/set_pythonpath.sh && python3 ServerlessContainers/src/NodeRescaler/NodeRescaler.py"
+
+# Arrancar el script que manda el baseline (0) de serie temporal del contenedor
+tmux new -d -s "ts_baseline" "watch -n 5 bash BlockchainServerless/scripts/send_baseline.sh"
 
 # Configurar cliente de MinIO
 mc alias set 'myminio' "http://$HOST_1:9000" 'minioadmin' 'minioadmin'
@@ -60,7 +69,7 @@ mc mb myminio/stress/output
 mc mb myminio/stress/logs
 mc mb myminio/stress/utils
 
-
+exit 0
 
 ############################################
 

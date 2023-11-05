@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 
@@ -12,12 +13,14 @@ from termcolor import colored
 
 
 def myprint(message):
-    #logging.info(message)
-    print("[{0}]: {1}".format(get_time_now_string(), message))
+    message_with_time = "[{0}]: {1}".format(get_time_now_string(), message)
+    logging.info(message_with_time)
+    print(message_with_time)
 
 def printerr(message):
-    #logging.error(message)
-    print("[{0}]: {1}".format(get_time_now_string(), colored(message, "red")))
+    message_with_time = "[{0}]: {1}".format(get_time_now_string(), colored(message, "red"))
+    logging.info(message_with_time)
+    print(message_with_time)
 
 
 def get_time_now_string():
@@ -38,7 +41,7 @@ username = "user0"
 contname = "cont0"
 bucket = "stress"
 images = {"stress": "experiment"}
-cont_last_finished_task = Value('i', -1)
+cont_last_finished_task = Value('i', int(time.time()))
 
 # MinIO configuration
 minio_endpoint = "{0}:9000".format(HOST_1)
@@ -86,6 +89,13 @@ def data_present_in_path(bucket, path):
     else:
         return False
 
+def get_file_from_bucket(bucket, filename, local_path):
+    try:
+        minio_client.fget_object(bucket, filename, local_path)
+        return True
+    except S3Error:
+        printerr("Could not retrieve file '{0}' from bucket '{1}' to be stored at {2}".format(filename, bucket, local_path))
+        return False
 
 def start_container(bucket):
     p = subprocess.run(["bash", "{0}/tasks/common/start_container.sh".format(SCRIPTS_BASE_PATH), contname, images[bucket]])
@@ -107,18 +117,32 @@ def run_in_worker_process(command, taskname, bucket, cont_last_finished_task):
         else:
             myprint("Task for '{0}' finished successfully".format(taskname))
             myprint("Moving file to 'output'")
+            myprint("----------")
             move_task_between_dirs(bucket, "processing", "output", taskname)
     minio_client.fput_object(bucket, "logs/{0}".format(logname), logfile)
     cont_last_finished_task.value = int(time.time())
 
 def check_container_timeout(bucket, contname):
-    TIMEOUT = 60
+    DEFAULT_TIMEOUT = 60
+    filepath = "/tmp/{0}-timeout.txt".format(contname)
+    success = get_file_from_bucket(bucket, "utils/timeout.txt", filepath)
+    if success:
+        with open(filepath) as f:
+            try:
+                timeout = int(float(f.readline()))
+            except ValueError:
+                printerr("Invalid value in file timeout.txt, using default timeout of {0}".format(DEFAULT_TIMEOUT))
+                timeout = DEFAULT_TIMEOUT
+    else:
+        printerr("Using default timeout of {0}".format(DEFAULT_TIMEOUT))
+        timeout = DEFAULT_TIMEOUT
+
     idle_time = int(time.time()) - cont_last_finished_task.value
-    if idle_time > TIMEOUT:
-        myprint("Container {0} has exceeded timeout ({1}), stopping".format(contname, TIMEOUT))
+    if idle_time > timeout:
+        myprint("Container {0} has exceeded timeout of {1}s, stopping".format(contname, timeout))
         stop_container(bucket)
     else:
-        myprint("Container {0} has now been running for {1} idle seconds".format(contname, idle_time))
+        myprint("Container {0} has now been running for {1} idle seconds, timeout is {2}s".format(contname, idle_time, timeout))
 
 def run_new_task(bucket):
     objects = data_in_bucket_path(bucket, "input/")
@@ -129,9 +153,8 @@ def run_new_task(bucket):
 
     # Get the script to run with the task
     local_path_script = "/tmp/{0}-process_task.sh".format(bucket)
-    try:
-        minio_client.fget_object(bucket, "utils/process_task.sh", local_path_script)
-    except S3Error:
+    success = get_file_from_bucket(bucket, "utils/process_task.sh", local_path_script)
+    if not success:
         printerr("Could not retrieve script to process task of type {0}".format(bucket))
         printerr("Script should be named '{0}' and be located in '{1}'".format("process_task.sh", "{0}/utils/".format(bucket)))
         return
@@ -141,7 +164,10 @@ def run_new_task(bucket):
 
     # Download the file locally
     local_path_taskfile = "/tmp/{0}".format(taskname)
-    minio_client.fget_object(bucket, "processing/{0}".format(taskname), local_path_taskfile)
+    success = get_file_from_bucket(bucket, "processing/{0}".format(taskname), local_path_taskfile)
+    if not success:
+        printerr("Could not download the file data for the task")
+        return
 
     # Run the user's script with the file and inside a container
     command = ["sudo", "apptainer", "exec", "instance://{0}".format(contname), "bash", local_path_script, local_path_taskfile]
@@ -229,6 +255,7 @@ def start_container_process(bucket):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='manager.log', level=logging.INFO)
     while True:
         container_running = container_is_running(contname)
         data_in_input = data_present_in_path(bucket, "input/")

@@ -8,6 +8,18 @@
           "tags": [
             "user=user0"
           ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "user.accounting.min_balance",
+          "tags": [
+            "user=user0"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "user.accounting.max_debt",
+          "tags": [
+            "user=user0"
+          ]
         }
       ],
       "yranges": {
