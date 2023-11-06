@@ -5,7 +5,8 @@
 
 # Tambien se pondrán aquí los comandos comunes a cualquier nodo de experimentación
 
-exit 0 # Este script aun no soporta la ejecución automatizada
+echo "Este script aun no soporta la ejecución automatizada"
+exit 0
 
 # Configurar las variables de entorno
 vim BlockchainServerless/scripts/exp-vars.sh

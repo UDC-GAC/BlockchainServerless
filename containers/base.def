@@ -16,10 +16,10 @@ Stage: build
     fish -c "alias cxc 'set -gx tide_context_color_ssh bryellow && tide reload'"
 
     # Install tzdata, which usually asks for user input thus the fix
-    DEBIAN_FRONTEND=noninteractive TZ=Europe/Madrird apt-get -y install tzdata
+    DEBIAN_FRONTEND=noninteractive TZ=Europe/Madrid apt-get -y install tzdata
 
     # Basic cli utils
-    apt install -y moreutils netcat atop htop git python3-pip python-is-python3 vim tree curl wget fio unzip net-tools screenfetch stress stress-ng iputils-ping iproute2
+    apt install -y moreutils netcat atop htop git python3-pip python-is-python3 vim tree curl wget fio unzip net-tools screenfetch stress stress-ng iputils-ping iproute2 screen
 
     # Install the newutils
     apt install -y bat exa

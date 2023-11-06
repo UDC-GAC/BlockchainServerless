@@ -191,7 +191,7 @@ def get_user_status(user_info):
         status = "broke"
     elif user_balance < 0 and user_balance > user_max_debt:
         status = "indebt"
-    elif user_balance < 0 and user_balance < user_max_debt:
+    elif user_balance < 0 and user_balance <= user_max_debt:
         status = "scammer"
     else:
         status = "unknown"

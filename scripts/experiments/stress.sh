@@ -1,9 +1,4 @@
-START_CREDIT=4
-MIN_BALANCE=2
-MAX_DEBT="-1"
-TIMEOUT=45
-source BDWatchdog/set_pythonpath.sh
-export MONGODB_IP="193.144.50.38"
+scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 
 function generate_load {
   #  echo "Generate the tasks"
@@ -20,222 +15,28 @@ function generate_load {
   #  echo "Waiting"
   #  sleep 210
 
-  LOAD="0.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
-  LOAD="1.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
-  LOAD="2.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
-  LOAD="3.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
-  LOAD="4.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
-  LOAD="5.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
-  echo "Waiting"
-  sleep 370
+  #  LOAD="0.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
+  #  LOAD="1.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
+  #  LOAD="2.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
+  #  LOAD="3.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
+  #  LOAD="4.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
+  #  LOAD="5.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
+  #  LOAD="6.1-60" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
+  #  myecho "Waiting"
+  #  sleep 430
+
+  LD="0.1-100" && touch $LD.txt && mc mv $LD.txt myminio/stress/input
+  LD="1.2-100" && touch $LD.txt && mc mv $LD.txt myminio/stress/input
+  myecho "Waiting"
+  sleep 210
 }
 
-function set_user_policy_greedy {
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/set_accounting_policy_greedy.sh user0
-}
+export -f generate_load
 
-function set_user_policy_conservative {
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/set_accounting_policy_conservative.sh user0
-}
+export LOAD_NAME="stress"
+export TIMEOUT=45
+export MIN_BALANCE=1
+export MAX_DEBT="-1"
+export START_CREDIT=2
 
-function set_user_min_balance {
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/set_accounting_min_balance.sh user0 ${MIN_BALANCE}
-}
-
-function set_user_max_debt {
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/set_accounting_max_debt.sh user0 ${MAX_DEBT}
-}
-
-function signal_test_start {
-  echo "Signaling experiment test start"
-  python3 BDWatchdog/TimestampsSnitch/src/timestamping/signal_test.py start ${exp_name} ${test_name} --push --username root
-}
-
-function signal_test_end {
-  echo "Signaling experiment test end"
-  sleep 10
-  python3 BDWatchdog/TimestampsSnitch/src/timestamping/signal_test.py end ${exp_name} ${test_name} --push --username root
-}
-
-function signal_exp_start {
-  echo "Signaling experiment start"
-  python3 BDWatchdog/TimestampsSnitch/src/timestamping/signal_experiment.py start ${exp_name} --push --username root
-  sleep 15
-}
-
-function signal_exp_end {
-  echo "Signaling experiment end"
-  sleep 15
-  python3 BDWatchdog/TimestampsSnitch/src/timestamping/signal_experiment.py end ${exp_name} --push --username root
-}
-
-function deactivate_serverless {
-  echo "Deactivating Serverless"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-guard.sh false
-}
-
-function activate_serverless {
-  echo "Activating Serverless"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-guard.sh true
-}
-
-function activate_accounting {
-  echo "Activating Accounting"
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/activate_user_accounting.sh user0
-}
-
-function deactivate_accounting {
-  echo "Deactivating Accounting"
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/deactivate_user_accounting.sh user0
-}
-
-function set_user_credit {
-  echo "Setting user credit"
-  activate_accounting
-  bash BlockchainServerless/scripts/gridcoin/set_zero_balance.sh
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/set_accounting_pending_zero.sh user0
-  apptainer exec instance://grc bash BlockchainServerless/scripts/gridcoin/gridcoin-run.sh move sink user0 ${START_CREDIT}
-  sleep 15
-  deactivate_accounting
-}
-
-function flush_remaining_consumed {
-  echo "Compute and flush the remaining consumed but not billed CPU"
-  sleep 10
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/CreditManager/set_min_coin_movement.sh 0.05
-  echo "Wait until it is billed"
-  sleep 12
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/CreditManager/set_min_coin_movement.sh 0.2
-}
-
-function wait_container_timeout {
-  echo "Waiting container timeout (${TIMEOUT})"
-  sleep $TIMEOUT
-  sleep 10 # Plus some more just to be sure
-}
-
-function empty_bucket {
-  echo "-------------------"
-  echo "Emptying bucket"
-  mc rm --force --recursive myminio/stress/input/
-  mc rm --force --recursive myminio/stress/output/
-  mc rm --force --recursive myminio/stress/processing/
-  mc mb myminio/stress/input
-  mc mb myminio/stress/processing
-  mc mb myminio/stress/output
-  echo "-------------------"
-}
-
-function dump_bucket_info {
-  echo "-------------------"
-  echo "Bucket content is: "
-  mc ls --recursive myminio/stress/
-  empty_bucket
-  echo "-------------------"
-}
-
-function set_timeout_container {
-  echo ${TIMEOUT} >timeout.txt
-  mc cp timeout.txt myminio/stress/utils
-}
-
-function run_serv_acct {
-  export test_name="1.stress_serv_acct"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-current-to-half-max.sh
-  set_user_credit
-  activate_serverless
-  activate_accounting
-  signal_test_start
-  generate_load
-  deactivate_serverless
-  flush_remaining_consumed
-  deactivate_accounting
-  signal_test_end
-  dump_bucket_info
-  wait_container_timeout
-}
-
-function run_serv_noacct {
-  export test_name="2.stress_serv_noacct"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-current-to-half-max.sh
-  set_user_credit
-  activate_serverless
-  deactivate_accounting
-  signal_test_start
-  generate_load
-  deactivate_serverless
-  flush_remaining_consumed
-  signal_test_end
-  dump_bucket_info
-  wait_container_timeout
-}
-
-function run_noserv_acct {
-  export test_name="3.stress_noserv_acct"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-current-to-max.sh
-  set_user_credit
-  deactivate_serverless
-  activate_accounting
-  signal_test_start
-  generate_load
-  flush_remaining_consumed
-  deactivate_accounting
-  signal_test_end
-  dump_bucket_info
-  wait_container_timeout
-}
-
-function run_noserv_noacct {
-  export test_name="4.stress_noserv_noacct"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-current-to-max.sh
-  set_user_credit
-  deactivate_serverless
-  deactivate_accounting
-  signal_test_start
-  generate_load
-  flush_remaining_consumed
-  signal_test_end
-  dump_bucket_info
-  wait_container_timeout
-}
-
-apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Scaler/activate.sh
-apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/activate.sh
-apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/CreditManager/activate.sh
-apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/CreditManager/set_min_coin_movement.sh 0.2
-
-
-TIMEOUT=45
-set_timeout_container
-MIN_BALANCE=2
-set_user_min_balance
-MAX_DEBT="-1"
-set_user_max_debt
-set_user_policy_conservative
-START_CREDIT=5
-
-empty_bucket
-export exp_name=$(date "+%F_%H:%M")
-signal_exp_start
-run_serv_acct
-run_serv_noacct
-run_noserv_acct
-run_noserv_noacct
-signal_exp_end
-
-
-MIN_BALANCE=2
-set_user_min_balance
-MAX_DEBT="-1"
-set_user_max_debt
-set_user_policy_greedy
-START_CREDIT=3
-
-empty_bucket
-export exp_name=$(date "+%F_%H:%M")
-signal_exp_start
-run_serv_acct
-run_serv_noacct
-run_noserv_acct
-run_noserv_noacct
-signal_exp_end
+bash ${scriptDir}/common.sh
