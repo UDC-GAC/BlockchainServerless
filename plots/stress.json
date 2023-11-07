@@ -1,0 +1,87 @@
+{
+  "timeseries": [
+    {
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "proc.cpu.user",
+          "tags": [
+            "host=stress-cont"
+          ]
+        },
+        {
+          "aggregator": "zimsum",
+          "metric": "proc.cpu.kernel",
+          "tags": [
+            "host=stress-cont"
+          ]
+        },
+        {
+          "aggregator": "zimsum",
+          "metric": "structure.cpu.max",
+          "tags": [
+            "structure=stress-cont"
+          ]
+        },
+        {
+          "aggregator": "zimsum",
+          "metric": "limit.cpu.upper",
+          "tags": [
+            "structure=stress-cont"
+          ]
+        },
+        {
+          "aggregator": "zimsum",
+          "metric": "structure.cpu.current",
+          "tags": [
+            "structure=stress-cont"
+          ]
+        },
+        {
+          "aggregator": "zimsum",
+          "metric": "limit.cpu.lower",
+          "tags": [
+            "structure=stress-cont"
+          ]
+        },
+        {
+          "aggregator": "zimsum",
+          "metric": "structure.cpu.min",
+          "tags": [
+            "structure=stress-cont"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 450,
+        "ymin": 0
+      }
+    },{
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "user.accounting.coins",
+          "tags": [
+            "user=user0"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "user.accounting.min_balance",
+          "tags": [
+            "user=user0"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "user.accounting.max_debt",
+          "tags": [
+            "user=user0"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 6,
+        "ymin": -5
+      }
+    }
+  ]
+}

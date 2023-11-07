@@ -23,9 +23,13 @@ sed -i 's/POST_DOC_BUFFER_TIMEOUT=10/POST_DOC_BUFFER_TIMEOUT=5/g' BDWatchdog/Met
 # Clonar Serverless Containers en el home de Pluton, la rama de experimentacion blockchain
 #git clone -b blockchain-experiments https://github.com/UDC-GAC/ServerlessContainers
 
-# Construir los contenedores de experimentacion
+# Construir el contenedor base
 apptainer build --force base.sif BlockchainServerless/containers/base.def
-apptainer build --force experiment.sif BlockchainServerless/containers/experiment.def
+
+# Construir los contenedores de experimentación
+apptainer build --force stress.sif BlockchainServerless/containers/stress.def
+apptainer build --force gatk.sif BlockchainServerless/containers/gatk.def
+apptainer build --force functions.sif BlockchainServerless/containers/functions.def
 
 # Construir los contenedores auxiliares
 apptainer build --force couchdb.sif BlockchainServerless/containers/my_couchdb.def
@@ -47,7 +51,7 @@ apptainer instance start --hostname sc --bind /home/jonatan.enes/myhosts:/etc/ho
 
 # Arranca el contenedor con GRC y pon crédito del user0 a 0
 apptainer instance start --hostname grc gridcoin.sif grc
-bash BlockchainServerless/scripts/gridcoin/set_zero_balance.sh
+bash BlockchainServerless/scripts/gridcoin/set_user_balance.sh 0
 apptainer exec instance://grc bash BlockchainServerless/scripts/gridcoin/gridcoin-run.sh listaccounts
 
 # Descargar el script de Oscar para cambiar permisos
@@ -63,13 +67,6 @@ tmux new -d -s "ts_baseline" "watch -n 5 bash BlockchainServerless/scripts/send_
 mc alias set 'myminio' "http://$HOST_1:9000" 'minioadmin' 'minioadmin'
 mc admin info myminio
 
-# Crear buckets y directorios
-mc mb myminio/stress/input
-mc mb myminio/stress/processing
-mc mb myminio/stress/output
-mc mb myminio/stress/logs
-mc mb myminio/stress/utils
-
 exit 0
 
 ############################################
@@ -79,9 +76,10 @@ mc cp base.sif myminio/test/test.sif
 mc mb myminio/gatk/sample/input
 mc mb myminio/gatk/sample/processing
 mc mb myminio/gatk/sample/output
-mc mb myminio/functions/gif/input
-mc mb myminio/functions/gif/processing
-mc mb myminio/functions/gif/output
+mc mb myminio/gif/input
+mc mb myminio/gif/processing
+mc mb myminio/gif/output
+mc mb myminio/gif/utils
 
 
 # Arrancar el manager

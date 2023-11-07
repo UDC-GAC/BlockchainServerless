@@ -1,14 +1,8 @@
 Bootstrap: localimage
-From: experiment.sif
+From: base.sif
 Stage: build
 
 %post
    	
 	apt update
 	apt install -y ffmpeg
-	
-	
-	
-    
-    
-

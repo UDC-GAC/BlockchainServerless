@@ -25,10 +25,14 @@ function generate_load {
   #  myecho "Waiting"
   #  sleep 430
 
-  LD="0.1-100" && touch $LD.txt && mc mv $LD.txt myminio/stress/input
-  LD="1.2-100" && touch $LD.txt && mc mv $LD.txt myminio/stress/input
+  #  LD="0.1-100" && touch $LD.txt && mc mv $LD.txt myminio/stress/input
+  #  LD="1.2-100" && touch $LD.txt && mc mv $LD.txt myminio/stress/input
+  #  myecho "Waiting"
+  #  sleep 210
+
+  LD="0.1-50" && touch $LD.txt && mc mv $LD.txt myminio/stress/input
   myecho "Waiting"
-  sleep 210
+  sleep 60
 }
 
 export -f generate_load

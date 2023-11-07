@@ -19,12 +19,13 @@ Stage: build
     DEBIAN_FRONTEND=noninteractive TZ=Europe/Madrid apt-get -y install tzdata
 
     # Basic cli utils
-    apt install -y moreutils netcat atop htop git python3-pip python-is-python3 vim tree curl wget fio unzip net-tools screenfetch stress stress-ng iputils-ping iproute2 screen
-
-    # Install the newutils
-    apt install -y bat exa
+    apt install -y moreutils git python3-pip python-is-python3 vim curl wget unzip net-tools screenfetch screen
 
     # Install fisher
     fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
     fish -c "fisher install IlanCosman/tide@v6"
+
+    # Needed for BDWatchdog MetricsFeeder
+    apt install -y atop
+    pip3 install requests pyyaml
 

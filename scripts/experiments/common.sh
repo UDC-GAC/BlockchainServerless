@@ -1,11 +1,3 @@
-source BDWatchdog/set_pythonpath.sh
-export MONGODB_IP="193.144.50.38"
-export EXP_OUT_DIR="${HOME}/exp_logs"
-mkdir -p ${EXP_OUT_DIR}
-LOGFILE=${EXP_OUT_DIR}/out.log
-rm -f LOGFILE
-
-
 function check_return_code201 {
   return_code="$http_code"
   if ! [[ ${return_code} =~ ^[0-9]+$ ]] || [[ "${return_code}" -ne "201" ]];
@@ -14,8 +6,6 @@ function check_return_code201 {
     myecho "${return_code}"
     myecho "Stopping"
     exit 1
-  else
-    myecho "Success"
   fi
 }
 
@@ -89,22 +79,38 @@ function wait_container_timeout {
   sleep 10 # Plus some more just to be sure
 }
 
+function prepare_base_buckets {
+  myecho "-------------------"
+  myecho "Setting up basic buckets (utils and logs)"
+  mc rm --force --recursive ${LOAD_BUCKET}/utils/ >> ${LOGFILE} 2>&1
+  mc rm --force --recursive ${LOAD_BUCKET}/logs/ >> ${LOGFILE} 2>&1
+  mc mb ${LOAD_BUCKET}/utils >> ${LOGFILE} 2>&1
+  mc mb ${LOAD_BUCKET}/logs >> ${LOGFILE} 2>&1
+  myecho "-------------------"
+  myecho "Copying the 'process_task.sh' script for this load to the 'utils' bucket in '${LOAD_BUCKET}'"
+  mc cp BlockchainServerless/scripts/tasks/${LOAD_NAME}/process_task.sh ${LOAD_BUCKET}/utils/  >> ${LOGFILE} 2>&1
+  myecho "Copying the '${LOAD_NAME}.sif' container image for this load to the 'utils' bucket in '${LOAD_BUCKET}'"
+  mc cp "${LOAD_NAME}.sif" ${LOAD_BUCKET}/utils/  >> ${LOGFILE} 2>&1
+}
+
 function empty_bucket {
   myecho "-------------------"
-  myecho "Emptying bucket"
-  mc rm --force --recursive ${LOAD_BUCKET}/input/ &> ${LOGFILE}
-  mc rm --force --recursive ${LOAD_BUCKET}/output/ &> ${LOGFILE}
-  mc rm --force --recursive ${LOAD_BUCKET}/processing/ &> ${LOGFILE}
-  mc mb ${LOAD_BUCKET}/input &> ${LOGFILE}
-  mc mb ${LOAD_BUCKET}/processing &> ${LOGFILE}
-  mc mb ${LOAD_BUCKET}/output &> ${LOGFILE}
+  myecho "Emptying buckets"
+  mc rm --force --recursive ${LOAD_BUCKET}/results/ >> ${LOGFILE} 2>&1
+  mc rm --force --recursive ${LOAD_BUCKET}/input/ >> ${LOGFILE} 2>&1
+  mc rm --force --recursive ${LOAD_BUCKET}/processing/ >> ${LOGFILE} 2>&1
+  mc rm --force --recursive ${LOAD_BUCKET}/output/ >> ${LOGFILE} 2>&1
+  mc mb ${LOAD_BUCKET}/results >> ${LOGFILE} 2>&1
+  mc mb ${LOAD_BUCKET}/input >> ${LOGFILE} 2>&1
+  mc mb ${LOAD_BUCKET}/processing >> ${LOGFILE} 2>&1
+  mc mb ${LOAD_BUCKET}/output >> ${LOGFILE} 2>&1
   myecho "-------------------"
 }
 
 function dump_bucket_info {
   myecho "-------------------"
   myecho "Bucket content is: "
-  mc ls --recursive ${LOAD_BUCKET}/  &> ${LOGFILE}
+  mc ls --recursive ${LOAD_BUCKET}/  >> ${LOGFILE} 2>&1
   empty_bucket
   myecho "-------------------"
 }
@@ -112,7 +118,7 @@ function dump_bucket_info {
 function set_timeout_container {
   myecho "Setting timeout of ${TIMEOUT}"
   echo ${TIMEOUT} >timeout.txt
-  mc cp timeout.txt ${LOAD_BUCKET}/utils
+  mc cp timeout.txt ${LOAD_BUCKET}/utils  >> ${LOGFILE} 2>&1
 }
 
 function set-cont-template-cpu-max {
@@ -123,6 +129,12 @@ function set-cont-template-cpu-max {
 function set-cont-template-cpu-halfmax {
   myecho "Setting the cpu 'current' to the half the maximum allowed in the container template"
   apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-current-to-half-max.sh
+}
+
+function set-cont-template-name {
+  CONT_NAME="${LOAD_NAME}-cont"
+  myecho "Setting the name (${CONT_NAME}) in the container template"
+  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-name.sh ${CONT_NAME}
 }
 
 function set_out_log {
@@ -199,6 +211,7 @@ function run_noserv_noacct {
 }
 
 function run_4_fold_exp {
+  TIMESTAMP=$(date "+%m_%d_%H:%M")
   export OUT_DIR=${EXP_OUT_DIR}/${TIMESTAMP}/${POLICY}
   mkdir -p ${OUT_DIR}
   set_user_policy
@@ -212,32 +225,57 @@ function run_4_fold_exp {
   signal_exp "end"
 }
 
+function run_simple_test {
+  TIMESTAMP=$(date "+%m_%d_%H:%M")
+  export OUT_DIR="${EXP_OUT_DIR}/${TIMESTAMP}/test"
+  mkdir -p ${OUT_DIR}
+  set_user_policy
+  empty_bucket
+  export exp_name="${TIMESTAMP}_test"
+  signal_exp "start"
+  run_serv_acct
+  signal_exp "end"
+}
+
+function activate_services {
+  myecho "Activating Scaler"
+  export http_code=$(apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Scaler/activate.sh)
+  check_return_code201
+  myecho "Activating Guardian"
+  export http_code=$(apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/activate.sh)
+  check_return_code201
+  myecho "Activating CreditManager"
+  export http_code=$(apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/CreditManager/activate.sh)
+  check_return_code201
+  myecho "Setting min GRC movement in CreditManager of ${MIN_COIN_MOVEMENT}"
+  export http_code=$(apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/CreditManager/set_min_coin_movement.sh ${MIN_COIN_MOVEMENT})
+  check_return_code201
+}
+
+
+source BDWatchdog/set_pythonpath.sh
+export MONGODB_IP="193.144.50.38"
+export EXP_OUT_DIR="${HOME}/exp_logs"
+export LOGFILE=${EXP_OUT_DIR}/out.log
+
+mkdir -p ${EXP_OUT_DIR}
+rm -f LOGFILE
+
 export MIN_COIN_MOVEMENT="0.2"
-myecho "Activating Scaler"
-export http_code=$(apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Scaler/activate.sh)
-check_return_code201
-myecho "Activating Guardian"
-export http_code=$(apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/activate.sh)
-check_return_code201
-myecho "Activating CreditManager"
-export http_code=$(apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/CreditManager/activate.sh)
-check_return_code201
-myecho "Setting min GRC movement in CreditManager"
-export http_code=$(apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/CreditManager/set_min_coin_movement.sh ${MIN_COIN_MOVEMENT})
-check_return_code201
-
 export LOAD_BUCKET="myminio/${LOAD_NAME}"
-myecho "Copying the 'process_task.sh' script for this load to the 'utils' bucket in '${LOAD_BUCKET}'"
-mc cp BlockchainServerless/scripts/tasks/${LOAD_NAME}/process_task.sh ${LOAD_BUCKET}/utils/
 
+activate_services
+prepare_base_buckets
 set_timeout_container
 set_user_min_balance
 set_user_max_debt
-
-POLICY="greedy"
-TIMESTAMP=$(date "+%m_%d_%H:%M")
-run_4_fold_exp
+set-cont-template-name
 
 POLICY="conservative"
-TIMESTAMP=$(date "+%m_%d_%H:%M")
-run_4_fold_exp
+run_simple_test
+
+#POLICY="greedy"
+#run_4_fold_exp
+
+#POLICY="conservative"
+#run_4_fold_exp

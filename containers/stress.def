@@ -1,0 +1,8 @@
+Bootstrap: localimage
+From: base.sif
+Stage: build
+
+%post
+   	
+	apt update
+	apt install -y stress stress-ng

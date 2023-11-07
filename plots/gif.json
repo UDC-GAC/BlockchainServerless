@@ -6,49 +6,49 @@
           "aggregator": "zimsum",
           "metric": "proc.cpu.user",
           "tags": [
-            "host=cont0"
+            "host=gif-cont"
           ]
         },
         {
           "aggregator": "zimsum",
           "metric": "proc.cpu.kernel",
           "tags": [
-            "host=cont0"
+            "host=gif-cont"
           ]
         },
         {
           "aggregator": "zimsum",
           "metric": "structure.cpu.max",
           "tags": [
-            "structure=cont0"
+            "structure=gif-cont"
           ]
         },
         {
           "aggregator": "zimsum",
           "metric": "limit.cpu.upper",
           "tags": [
-            "structure=cont0"
+            "structure=gif-cont"
           ]
         },
         {
           "aggregator": "zimsum",
           "metric": "structure.cpu.current",
           "tags": [
-            "structure=cont0"
+            "structure=gif-cont"
           ]
         },
         {
           "aggregator": "zimsum",
           "metric": "limit.cpu.lower",
           "tags": [
-            "structure=cont0"
+            "structure=gif-cont"
           ]
         },
         {
           "aggregator": "zimsum",
           "metric": "structure.cpu.min",
           "tags": [
-            "structure=cont0"
+            "structure=gif-cont"
           ]
         }
       ],
@@ -79,7 +79,7 @@
         }
       ],
       "yranges": {
-        "ymax": 30,
+        "ymax": 6,
         "ymin": -5
       }
     }

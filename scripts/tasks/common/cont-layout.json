@@ -2,17 +2,17 @@
   "name": "cont0",
   "resources": {
     "cpu": {
-      "max": 400,
-      "current": 200,
+      "max": 1600,
+      "current": 400,
       "min": 20,
-      "boundary": 20,
+      "boundary": 40,
       "guard": true
     },
     "mem": {
-      "max": 4192,
-      "current": 2048,
-      "min": 256,
-      "boundary": 128,
+      "max": 102400,
+      "current": 102400,
+      "min": 102400,
+      "boundary": 1024,
       "guard": false
     }
   },

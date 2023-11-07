@@ -33,13 +33,9 @@ apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Cred
 # Desplegar MinIO
 rm -Rf {$MINIO_DATA} &&  mkdir {$MINIO_DATA}
 apptainer instance start --hostname minio --bind {$MINIO_DATA}:/data minio_latest.sif minio
-tmux new -d -s "Minio" "apptainer exec instance://minio /opt/bin/minio server /data/"
+tmux new -d -s "Minio" "apptainer exec instance://minio /bin/minio server /data/"
 
 exit 0
 
 #####################
-apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Structures/set_to_guarded.sh cont0
-apptainer exec instance://sc bash ServerlessContainers/conf/desubscribe_all.sh
-apptainer exec instance://sc bash ServerlessContainers/conf/Orchestrator/desubscribe_users.sh
-apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/unrestrict_user_accounting.sh user0
-
+apptainer exec instance://sc export PYTHONPATH=/home/jonatan.enes/ServerlessContainers && python3 ServerlessContainers/conf/CheckAlive/CheckAlive.py

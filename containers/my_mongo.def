@@ -5,4 +5,4 @@ Stage: build
 
 %post
    apt update
-   apt install -y git build-essential htop tmux vim screenfetch unzip
+   apt install -y git build-essential tmux vim screenfetch unzip

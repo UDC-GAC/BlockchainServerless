@@ -3,10 +3,6 @@ From: base.sif
 Stage: build
 
 %post
-    # Install BDWatchdog dependencies
-    #wget https://raw.githubusercontent.com/UDC-GAC/BDWatchdog/master/MetricsFeeder/requirements.txt
-    #pip install -r requirements.txt
-
     # Install Serverless Containers dependencies
     wget https://raw.githubusercontent.com/UDC-GAC/ServerlessContainers/master/requirements.txt
     wget https://raw.githubusercontent.com/UDC-GAC/ServerlessContainers/master/install.sh
@@ -18,7 +14,7 @@ Stage: build
     mv yq_linux_amd64 /bin/yq
     apt install -y jq
 
-    # Install Gridcoin
+    # Install Gridcoin for CreditManager
     add-apt-repository ppa:gridcoin/gridcoin-stable
     apt update
     apt install -y gridcoinresearchd
