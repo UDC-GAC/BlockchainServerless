@@ -29,7 +29,8 @@ apptainer build --force base.sif BlockchainServerless/containers/base.def
 # Construir los contenedores de experimentación
 apptainer build --force stress.sif BlockchainServerless/containers/stress.def
 apptainer build --force gatk.sif BlockchainServerless/containers/gatk.def
-apptainer build --force functions.sif BlockchainServerless/containers/functions.def
+apptainer build --force transcode.sif BlockchainServerless/containers/transcode.def
+
 
 # Construir los contenedores auxiliares
 apptainer build --force couchdb.sif BlockchainServerless/containers/my_couchdb.def
@@ -71,9 +72,16 @@ exit 0
 
 ############################################
 
-mc mb myminio/test
-mc cp base.sif myminio/test/test.sif
-mc mb myminio/gatk/sample/input
+set LOAD "genomics"
+
+mc mb myminio/{$LOAD}/input
+mc mb myminio/{$LOAD}/processing
+mc mb myminio/{$LOAD}/output
+mc mb myminio/{$LOAD}/utils
+mc mb myminio/{$LOAD}/logs
+mc mb myminio/{$LOAD}/results
+mc mb myminio/{$LOAD}/staging
+
 mc mb myminio/gatk/sample/processing
 mc mb myminio/gatk/sample/output
 mc mb myminio/gif/input

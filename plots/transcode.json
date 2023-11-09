@@ -79,8 +79,8 @@
         }
       ],
       "yranges": {
-        "ymax": 6,
-        "ymin": -5
+        "ymax": 12,
+        "ymin": -3
       }
     }
   ]

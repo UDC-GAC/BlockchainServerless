@@ -1,5 +1,9 @@
 scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 
+function load_staging_data {
+  myecho "This load does not load anything in staging dir"
+}
+
 function generate_load {
   #  echo "Generate the tasks"
   #  LOAD="0.1-150" && touch $LOAD.txt && mc mv $LOAD.txt myminio/stress/input
@@ -30,12 +34,13 @@ function generate_load {
   #  myecho "Waiting"
   #  sleep 210
 
-  LD="0.1-50" && touch $LD.txt && mc mv $LD.txt myminio/stress/input
+  LD="0.1-50" && touch $LD.txt && mycopy $LD.txt "input"
   myecho "Waiting"
   sleep 60
 }
 
 export -f generate_load
+export -f load_staging_data
 
 export LOAD_NAME="stress"
 export TIMEOUT=45

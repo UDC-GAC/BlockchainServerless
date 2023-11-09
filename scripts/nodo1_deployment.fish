@@ -13,6 +13,12 @@ tmux new -d -s "Couchdb" "apptainer exec instance://couchdb /opt/couchdb/bin/cou
 echo "Waiting for couchdb to start"
 sleep 10
 
+# Desplegar MinIO
+rm -Rf {$MINIO_DATA} &&  mkdir {$MINIO_DATA}
+apptainer instance start --hostname minio --bind {$MINIO_DATA}:/data minio_latest.sif minio
+tmux new -d -s "Minio" "apptainer exec instance://minio /bin/minio server /data/"
+
+
 # Levantar el contenedor de SC
 apptainer instance start --hostname sc --bind /home/jonatan.enes/myhosts:/etc/hosts sc.sif sc
 
@@ -30,10 +36,6 @@ tmux new -d -s "Refeeder" "apptainer exec instance://sc bash ServerlessContainer
 tmux new -d -s "CreditManager" "apptainer exec instance://sc bash ServerlessContainers/scripts/services/credit_manager/start.sh"
 apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/CreditManager/set_rpc_ip.sh "193.144.50.38"
 
-# Desplegar MinIO
-rm -Rf {$MINIO_DATA} &&  mkdir {$MINIO_DATA}
-apptainer instance start --hostname minio --bind {$MINIO_DATA}:/data minio_latest.sif minio
-tmux new -d -s "Minio" "apptainer exec instance://minio /bin/minio server /data/"
 
 exit 0
 

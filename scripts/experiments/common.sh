@@ -81,17 +81,29 @@ function wait_container_timeout {
 
 function prepare_base_buckets {
   myecho "-------------------"
-  myecho "Setting up basic buckets (utils and logs)"
+  myecho "Setting up basic buckets (utils, logs and staging)"
   mc rm --force --recursive ${LOAD_BUCKET}/utils/ >> ${LOGFILE} 2>&1
   mc rm --force --recursive ${LOAD_BUCKET}/logs/ >> ${LOGFILE} 2>&1
+  mc rm --force --recursive ${LOAD_BUCKET}/staging/ >> ${LOGFILE} 2>&1
   mc mb ${LOAD_BUCKET}/utils >> ${LOGFILE} 2>&1
   mc mb ${LOAD_BUCKET}/logs >> ${LOGFILE} 2>&1
+  mc mb ${LOAD_BUCKET}/staging >> ${LOGFILE} 2>&1
   myecho "-------------------"
   myecho "Copying the 'process_task.sh' script for this load to the 'utils' bucket in '${LOAD_BUCKET}'"
   mc cp BlockchainServerless/scripts/tasks/${LOAD_NAME}/process_task.sh ${LOAD_BUCKET}/utils/  >> ${LOGFILE} 2>&1
   myecho "Copying the '${LOAD_NAME}.sif' container image for this load to the 'utils' bucket in '${LOAD_BUCKET}'"
   mc cp "${LOAD_NAME}.sif" ${LOAD_BUCKET}/utils/  >> ${LOGFILE} 2>&1
+  myecho "Copying the required data in staging, according to the load"
+  load_staging_data
 }
+
+export countcopy=10 # Start with 10 to avoid incorrect ordering (0,1,10,11...,2,21..)
+
+function mycopy {
+  mc cp $1 "myminio/${LOAD_NAME}/$2/${countcopy}.$(basename $1)"
+  countcopy=$(echo "${countcopy} + 1" | bc)
+}
+export -f mycopy
 
 function empty_bucket {
   myecho "-------------------"
@@ -100,10 +112,12 @@ function empty_bucket {
   mc rm --force --recursive ${LOAD_BUCKET}/input/ >> ${LOGFILE} 2>&1
   mc rm --force --recursive ${LOAD_BUCKET}/processing/ >> ${LOGFILE} 2>&1
   mc rm --force --recursive ${LOAD_BUCKET}/output/ >> ${LOGFILE} 2>&1
+  #mc rm --force --recursive ${LOAD_BUCKET}/staging/ >> ${LOGFILE} 2>&1
   mc mb ${LOAD_BUCKET}/results >> ${LOGFILE} 2>&1
   mc mb ${LOAD_BUCKET}/input >> ${LOGFILE} 2>&1
   mc mb ${LOAD_BUCKET}/processing >> ${LOGFILE} 2>&1
   mc mb ${LOAD_BUCKET}/output >> ${LOGFILE} 2>&1
+  #mc mb ${LOAD_BUCKET}/staging >> ${LOGFILE} 2>&1
   myecho "-------------------"
 }
 
@@ -129,12 +143,6 @@ function set-cont-template-cpu-max {
 function set-cont-template-cpu-halfmax {
   myecho "Setting the cpu 'current' to the half the maximum allowed in the container template"
   apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-current-to-half-max.sh
-}
-
-function set-cont-template-name {
-  CONT_NAME="${LOAD_NAME}-cont"
-  myecho "Setting the name (${CONT_NAME}) in the container template"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-name.sh ${CONT_NAME}
 }
 
 function set_out_log {
@@ -234,6 +242,7 @@ function run_simple_test {
   export exp_name="${TIMESTAMP}_test"
   signal_exp "start"
   run_serv_acct
+  run_noserv_acct
   signal_exp "end"
 }
 
@@ -269,7 +278,6 @@ prepare_base_buckets
 set_timeout_container
 set_user_min_balance
 set_user_max_debt
-set-cont-template-name
 
 POLICY="conservative"
 run_simple_test

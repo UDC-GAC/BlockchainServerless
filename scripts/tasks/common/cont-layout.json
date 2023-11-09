@@ -1,11 +1,10 @@
 {
-  "name": "cont0",
   "resources": {
     "cpu": {
       "max": 1600,
-      "current": 400,
+      "current": 1600,
       "min": 20,
-      "boundary": 40,
+      "boundary": 75,
       "guard": true
     },
     "mem": {

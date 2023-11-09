@@ -1,0 +1,26 @@
+Bootstrap: localimage
+From: base.sif
+Stage: build
+
+%files
+
+    /home/jonatan.enes/gatk-4.4.0.0 /opt/gatk
+    /home/jonatan.enes/NA12878.chr17_69k_70k.dictFix.bam /opt/test/
+
+%post
+   	
+	# Java 17
+	apt update
+	apt install -y openjdk-17-jdk
+	apt install -y openjdk-17-jre
+	
+	# Samtools
+	apt install -y samtools
+
+	# Install Spark
+	pip3 install pyspark spark-submit
+
+	# Test
+    /opt/gatk/gatk PrintReads -I /opt/test/NA12878.chr17_69k_70k.dictFix.bam -O output.bam
+    
+

@@ -3,7 +3,9 @@ import logging
 import os
 import shutil
 import time
+import xml
 from pathlib import Path
+from xml.etree.ElementTree import ParseError
 
 import requests
 import subprocess
@@ -42,7 +44,7 @@ else:
 ORCHESTRATOR_URL = "{0}:5000".format(HOST_1)
 
 USERNAME = "user0"
-images = {"stress": "stress", "gif": "gif", "transcode": "transcode"}
+images = {"stress": "stress", "genomics": "genomics", "transcode": "transcode"}
 cont_last_finished_task = Value('i', int(time.time()))
 
 # MinIO configuration
@@ -93,21 +95,46 @@ def data_present_in_path(bucket, path):
 
 
 def get_file_from_bucket(bucket, filename, local_path):
-    try:
-        minio_client.fget_object(bucket, filename, local_path)
+    if Path(local_path).exists():
+        myprint("Object '{0}' already exists in '{1}'".format(filename, local_path))
         return True
-    except S3Error:
-        printerr(
-            "Could not retrieve file '{0}' from bucket '{1}' to be stored at {2}".format(filename, bucket, local_path))
-        return False
+    else:
+        try:
+            minio_client.fget_object(bucket, filename, local_path)
+            return True
+        except S3Error:
+            printerr(
+                "Could not retrieve file '{0}' from bucket '{1}' to be stored at {2}".format(filename, bucket, local_path))
+            return False
 
+def get_all_files_from_bucket(bucket, path, local_path):
+    objects = data_in_bucket_path(bucket, path)
+    for obj in objects:
+        myprint(obj.object_name)
+        object_name = obj.object_name.replace("staging/", "")
+        if Path("{0}/{1}".format(local_path, object_name)).exists():
+            myprint("Object '{0}' already exists in '{1}'".format(object_name, local_path))
+        else:
+            myprint("Downloading '{0}'".format(object_name))
+            minio_client.fget_object(bucket, obj.object_name, "{0}/{1}".format(local_path, object_name))
+            myprint("Finished")
 
-def start_container(bucket):
+def start_container(bucket, contname):
+    local_stag_dir = "/scratch2/staging/{0}".format(bucket)
+    myprint("Downloading all objects from 'staging' bucket dir to local staging dir in {0}".format(local_stag_dir))
+    #shutil.rmtree(local_stag_dir, ignore_errors=True)
+    Path(local_stag_dir).mkdir(parents=True, exist_ok=True)
+    get_all_files_from_bucket(bucket, "staging/", local_stag_dir)
+
     image_name = "{0}.sif".format(images[bucket])
+    local_path = "/scratch2/images"
+    Path(local_path).mkdir(parents=True, exist_ok=True)
+    local_image_path = "{0}/{1}".format(local_path, image_name)
+    myprint("Downloading container image '{0}' from 'utils' bucket dir to local in {0}".format(image_name, local_image_path))
     bucket_path = "/utils/{0}".format(image_name)
-    local_path = "/tmp/{0}".format(image_name)
-    get_file_from_bucket(bucket, bucket_path, local_path)
-    p = subprocess.run(["bash", "{0}/start_container.sh".format(SCRIPTS_BASE_PATH), contname, local_path])
+    get_file_from_bucket(bucket, bucket_path, local_image_path)
+
+    p = subprocess.run(["bash", "{0}/start_container.sh".format(SCRIPTS_BASE_PATH), contname, local_image_path, local_stag_dir])
     return p.returncode == 0
 
 
@@ -178,9 +205,17 @@ def run_new_task(bucket):
     worker_process.start()
 
 
-def run_in_worker_process(command, taskname, bucket, local_output_path, cont_last_finished_task):
+def copy_log_to_bucket(taskname):
+    myprint("Copying the log of task '{0}' to the 'logs/' dir".format(taskname))
     logname = "out-task-{0}.txt".format(taskname)
     logfile = "/tmp/{0}".format(logname)
+    minio_client.fput_object(bucket, "logs/{0}".format(logname), logfile)
+
+def run_in_worker_process(command, taskname, bucket, local_output_path, cont_last_finished_task):
+    #logname = "out-task-{0}-{1}.txt".format(taskname, int(time.time()))
+    logname = "out-task-{0}.txt".format(taskname)
+    logfile = "/tmp/{0}".format(logname)
+    os.remove(logfile) if os.path.exists(logfile) else None
     with open(logfile, "w") as outfile:
         p = subprocess.run(command, stdout=outfile, stderr=outfile)
         if p.returncode != 0:
@@ -198,7 +233,7 @@ def run_in_worker_process(command, taskname, bucket, local_output_path, cont_las
                     filepath = os.path.join(local_output_path, f)
                     minio_client.fput_object(bucket, "results/{0}".format(f), filepath)
 
-    minio_client.fput_object(bucket, "logs/{0}".format(logname), logfile)
+    copy_log_to_bucket(taskname)
     cont_last_finished_task.value = int(time.time())
 
 
@@ -238,13 +273,16 @@ def move_tasks_processing_to_input(bucket):
     tasks = data_in_bucket_path(bucket, "processing/")
     for task_object in tasks:
         filename = task_object.object_name.replace("processing/", "")
-        print("Moving {0}".format(filename))
+        myprint("Moving {0}".format(filename))
         move_task_between_dirs(bucket, "processing", "input", filename)
 
 
 def print_status_message(message, cond):
     if cond:
-        myprint("{0}: {1}".format(message, colored("YES", "green")))
+        if isinstance(cond, list):
+            myprint("{0}: {1}".format(message, colored("YES ({0})".format(len(cond)), "green")))
+        else:
+            myprint("{0}: {1}".format(message, colored("YES", "green")))
     else:
         myprint("{0}: {1}".format(message, colored("NO", "red")))
 
@@ -276,9 +314,9 @@ def print_user_info(user, user_status):
         myprint("[{0}] User status unknown".format(user_status))
 
 
-def start_container_process(bucket):
+def start_container_process(bucket, contname):
     myprint("Starting container")
-    success = start_container(bucket)
+    success = start_container(bucket, contname)
     if success:
         myprint("Running new task")
         run_new_task(bucket)
@@ -286,87 +324,94 @@ def start_container_process(bucket):
         printerr("Could not start the container")
 
 
-FUNCTIONS = ["transcode"]
+FUNCTIONS = ["genomics"]
 
 if __name__ == '__main__':
     logging.basicConfig(filename='manager.log', level=logging.INFO)
 
     while True:
-        user = get_user(USERNAME)
         try:
-            user_status = get_user_status(user)
-        except KeyError:
-            printerr("Error retrieveing user accounting, skipping")
-            time.sleep(5)
-            continue
-        print_user_info(user, user_status)
-        user_policy = user["accounting"]["policy"]
-        myprint("----------")
+            user = get_user(USERNAME)
+            try:
+                user_status = get_user_status(user)
+            except KeyError:
+                printerr("Error retrieveing user accounting, skipping")
+                time.sleep(5)
+                continue
+            print_user_info(user, user_status)
+            user_policy = user["accounting"]["policy"]
+            myprint("----------")
 
-        for func in FUNCTIONS:
-            myprint("Going to check function {0}".format(colored(func, "green")))
-            contname = "{0}-cont".format(func)
-            bucket = func
-            container_running = container_is_running(contname)
-            data_in_input = data_present_in_path(bucket, "input/")
-            data_in_processing = data_present_in_path(bucket, "processing/")
-            print_status_message("Container running", container_running)
-            print_status_message("Data in input", data_in_input)
-            print_status_message("Data in processing", data_in_processing)
+            for func in FUNCTIONS:
+                myprint("Going to check function {0}".format(colored(func, "green")))
+                contname = "{0}-cont".format(func)
+                bucket = func
+                container_running = container_is_running(contname)
+                data_in_input = data_in_bucket_path(bucket, "input/")
+                data_in_processing = data_in_bucket_path(bucket, "processing/")
+                print_status_message("Container running", container_running)
+                print_status_message("Data in input", data_in_input)
+                print_status_message("Data in processing", data_in_processing)
 
-            if container_running:
-                if user_status in ["normal"]:
-                    if data_in_processing:
-                        pass
-                    elif data_in_input:
-                        myprint("Running new task")
-                        run_new_task(bucket)
-                    else:
-                        check_container_timeout(bucket, contname)
-                elif user_status in ["broke"]:
-                    if data_in_processing:
-                        pass
-                    elif data_in_input:
-                        if user_policy == "greedy":
+                if container_running:
+                    if user_status in ["normal"]:
+                        if data_in_processing:
+                            taskname = data_in_processing[0].object_name.replace("processing/", "")
+                            copy_log_to_bucket(taskname)
+                        elif data_in_input:
                             myprint("Running new task")
                             run_new_task(bucket)
                         else:
-                            myprint("User policy does not allow to start a new task")
-                    else:
-                        check_container_timeout(bucket, contname)
-                elif user_status in ["indebt"]:
-                    if data_in_processing:
-                        pass
-                    elif data_in_input:
-                        myprint("Because user is in debt, no new tasks is started")
-                    else:
-                        check_container_timeout(bucket, contname)
-                elif user_status in ["scammer"]:
-                    myprint("Stopping the running container")
-                    stop_container(bucket)
-            else:
-                if data_in_processing:
-                    myprint("There is data allegedly being processed but no container is up")
-                    myprint("Returning tasks from 'processing' to 'input'")
-                    move_tasks_processing_to_input(bucket)
-                elif user_status in ["normal"]:
-                    if data_in_input:
-                        start_container_process(bucket)
-                    else:
-                        pass
-                elif user_status in ["broke"]:
-                    if data_in_input:
-                        if user_policy == "greedy":
-                            start_container_process(bucket)
+                            check_container_timeout(bucket, contname)
+                    elif user_status in ["broke"]:
+                        if data_in_processing:
+                            taskname = data_in_processing[0].object_name.replace("processing/", "")
+                            copy_log_to_bucket(taskname, contname)
+                        elif data_in_input:
+                            if user_policy == "greedy":
+                                myprint("Running new task")
+                                run_new_task(bucket)
+                            else:
+                                myprint("User policy does not allow to start a new task")
                         else:
-                            myprint("User policy does not allow to start a container")
-                    else:
-                        pass
-                elif user_status in ["indebt", "scammer"]:
-                    if data_in_input:
-                        myprint("Because user is in debt, no task is executed and no container will be started")
-                    else:
-                        pass
-            myprint("----------")
-        myprint("Finished epoch\n")
-        time.sleep(5)
+                            check_container_timeout(bucket, contname)
+                    elif user_status in ["indebt"]:
+                        if data_in_processing:
+                            taskname = data_in_processing[0].object_name.replace("processing/", "")
+                            copy_log_to_bucket(taskname, contname)
+                        elif data_in_input:
+                            myprint("Because user is in debt, no new tasks is started")
+                        else:
+                            check_container_timeout(bucket, contname)
+                    elif user_status in ["scammer"]:
+                        myprint("Stopping the running container")
+                        stop_container(bucket)
+                else:
+                    if data_in_processing:
+                        myprint("There is data allegedly being processed but no container is up")
+                        myprint("Returning tasks from 'processing' to 'input'")
+                        move_tasks_processing_to_input(bucket)
+                    elif user_status in ["normal"]:
+                        if data_in_input:
+                            start_container_process(bucket, contname)
+                        else:
+                            pass
+                    elif user_status in ["broke"]:
+                        if data_in_input:
+                            if user_policy == "greedy":
+                                start_container_process(bucket, contname)
+                            else:
+                                myprint("User policy does not allow to start a container")
+                        else:
+                            pass
+                    elif user_status in ["indebt", "scammer"]:
+                        if data_in_input:
+                            myprint("Because user is in debt, no task is executed and no container will be started")
+                        else:
+                            pass
+                myprint("----------")
+            myprint("Finished epoch\n")
+            time.sleep(5)
+        except (ValueError, ParseError) as e:
+            print(e)
+            time.sleep(5)
