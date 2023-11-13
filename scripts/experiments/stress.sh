@@ -39,8 +39,14 @@ function generate_load {
   sleep 60
 }
 
+function configure_rules {
+  echo "Configuring Rules"
+  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 100
+}
+
 export -f generate_load
 export -f load_staging_data
+export -f configure_rules
 
 export LOAD_NAME="stress"
 export TIMEOUT=45

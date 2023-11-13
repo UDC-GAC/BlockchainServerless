@@ -61,9 +61,6 @@ wget https://raw.githubusercontent.com/UDC-GAC/ServerlessYARN/master/ansible/pro
 # Arrancar el Node Scaler
 tmux new -d -s "NODE_SCALER" "source ServerlessContainers/set_pythonpath.sh && python3 ServerlessContainers/src/NodeRescaler/NodeRescaler.py"
 
-# Arrancar el script que manda el baseline (0) de serie temporal del contenedor
-tmux new -d -s "ts_baseline" "watch -n 5 bash BlockchainServerless/scripts/send_baseline.sh"
-
 # Configurar cliente de MinIO
 mc alias set 'myminio' "http://$HOST_1:9000" 'minioadmin' 'minioadmin'
 mc admin info myminio
@@ -89,5 +86,5 @@ mc mb myminio/gif/processing
 mc mb myminio/gif/output
 mc mb myminio/gif/utils
 
-
-# Arrancar el manager
+grep -r -H "it took" logs/*.txt | cut -d "," -f2 | sed 's/it took//g' | sed 's/seconds//g'
+grep -r -H "it took" logs/*.txt | cut -d "," -f1 | cut -d "." -f 2

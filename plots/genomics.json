@@ -82,6 +82,26 @@
         "ymax": 12,
         "ymin": -3
       }
+    },{
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "bucket.tasks.input",
+          "tags": [
+            "bucket=genomics"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "bucket.tasks.processing",
+          "tags": [
+            "bucket=genomics"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 10,
+        "ymin": 0
+      }
     }
   ]
 }

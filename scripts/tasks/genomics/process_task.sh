@@ -94,13 +94,14 @@ ${GatkBin} PathSeqScoreSpark \
         --paired-input ${EnvDir}/${SampleID}_pairedV2.bam \
         --unpaired-input ${EnvDir}/${SampleID}_unpairedV2.bam \
         --taxonomy-file ${TAX_FILE} \
-        --scores-output ${StagingDir}/scores.txt \
+        --scores-output ${StagingDir}/${BASE_FILE}_scores.txt \
         --output ${StagingDir}/output.bam \
         --min-score-identity 0.90 \
         --identity-margin 0.02 \
         -- --spark-runner SPARK --spark-master local[${PAR_DEGREE}] --driver-memory 80G
+exit_code=$?
 
-cp ${StagingDir}/scores.txt ${OUT_DIR}
+cp ${StagingDir}/${BASE_FILE}_scores.txt ${OUT_DIR}
 
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
@@ -108,4 +109,7 @@ echo "Finished running the load"
 end_time=$(date "+%s")
 time_diff=$(echo "${end_time} - ${start_time}" | bc)
 echo "Time is $(date "+%H:%M"), it took ${time_diff} seconds"
-exit $exit_code
+echo "Doing checksum of ${BASE_FILE}_scores.txt"
+md5sum ${StagingDir}/${BASE_FILE}_scores.txt
+#exit $exit_code
+exit 0

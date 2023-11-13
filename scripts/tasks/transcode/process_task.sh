@@ -22,6 +22,7 @@ echo "Input file is ${IN_FILE}"
 echo "Resulting file will be ${OUT_FILE}"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
+rm -f ${OUT_DIR}/${OUT_FILE}
 /usr/bin/time -v ffmpeg -i  ${TASK_NAME} -c:v libvpx-vp9 -crf 30 -b:v 0 -b:a 128k -c:a libopus -threads 16 "${OUT_DIR}/${OUT_FILE}"
 exit_code=$?
 
@@ -31,6 +32,6 @@ echo "Finished running the load"
 end_time=$(date "+%s")
 time_diff=$(echo "${end_time} - ${start_time}" | bc)
 echo "Time is $(date "+%H:%M"), it took ${time_diff} seconds"
-echo "Doing checksum of result file ${OUT_DIR}/${OUT_FILE}"
-md5sum "${OUT_DIR}/${OUT_FILE}"
+echo "Checksum of result file ${OUT_DIR}/${OUT_FILE} is $(md5sum "${OUT_DIR}/${OUT_FILE}")"
+
 exit $exit_code

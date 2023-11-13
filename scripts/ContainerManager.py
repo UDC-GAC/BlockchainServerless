@@ -3,7 +3,6 @@ import logging
 import os
 import shutil
 import time
-import xml
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
 
@@ -15,7 +14,8 @@ from minio.commonconfig import CopySource
 from multiprocessing import Process, Value
 
 from termcolor import colored
-
+import src.StateDatabase.opentsdb as opentsdb
+opentsdb_handler = opentsdb.OpenTSDBServer(opentsdb_url="193.144.50.38", opentsdb_port="4242")
 
 def myprint(message):
     message_with_time = "[{0}]: {1}".format(get_time_now_string(), message)
@@ -42,6 +42,8 @@ else:
     HOST_1 = os.environ["HOST_1"]
 
 ORCHESTRATOR_URL = "{0}:5000".format(HOST_1)
+
+LOCAL_TMP_DIR = "/tmp/jonatan.enes"
 
 USERNAME = "user0"
 images = {"stress": "stress", "genomics": "genomics", "transcode": "transcode"}
@@ -94,18 +96,21 @@ def data_present_in_path(bucket, path):
         return False
 
 
-def get_file_from_bucket(bucket, filename, local_path):
+def get_file_from_bucket(bucket, filename, local_path, override=False):
     if Path(local_path).exists():
-        myprint("Object '{0}' already exists in '{1}'".format(filename, local_path))
-        return True
-    else:
-        try:
-            minio_client.fget_object(bucket, filename, local_path)
+        if override:
+            os.remove(local_path) if os.path.exists(local_path) else None
+        else:
+            myprint("Object '{0}' already exists in '{1}'".format(filename, local_path))
             return True
-        except S3Error:
-            printerr(
-                "Could not retrieve file '{0}' from bucket '{1}' to be stored at {2}".format(filename, bucket, local_path))
-            return False
+
+    try:
+        minio_client.fget_object(bucket, filename, local_path)
+        return True
+    except S3Error:
+        printerr(
+            "Could not retrieve file '{0}' from bucket '{1}' to be stored at {2}".format(filename, bucket, local_path))
+        return False
 
 def get_all_files_from_bucket(bucket, path, local_path):
     objects = data_in_bucket_path(bucket, path)
@@ -132,7 +137,7 @@ def start_container(bucket, contname):
     local_image_path = "{0}/{1}".format(local_path, image_name)
     myprint("Downloading container image '{0}' from 'utils' bucket dir to local in {0}".format(image_name, local_image_path))
     bucket_path = "/utils/{0}".format(image_name)
-    get_file_from_bucket(bucket, bucket_path, local_image_path)
+    get_file_from_bucket(bucket, bucket_path, local_image_path, override=False)
 
     p = subprocess.run(["bash", "{0}/start_container.sh".format(SCRIPTS_BASE_PATH), contname, local_image_path, local_stag_dir])
     return p.returncode == 0
@@ -144,8 +149,8 @@ def stop_container(bucket):
 
 def check_container_timeout(bucket, contname):
     DEFAULT_TIMEOUT = 60
-    filepath = "/tmp/{0}-timeout.txt".format(contname)
-    success = get_file_from_bucket(bucket, "utils/timeout.txt", filepath)
+    filepath = "{0}/{1}-timeout.txt".format(LOCAL_TMP_DIR, contname)
+    success = get_file_from_bucket(bucket, "utils/timeout.txt", filepath, override=True)
     if success:
         with open(filepath) as f:
             try:
@@ -174,8 +179,8 @@ def run_new_task(bucket):
     myprint("Will run new task of type '{0}' with file '{1}'".format(bucket, taskname))
 
     # Get the script to run with the task
-    local_path_script = "/tmp/{0}-process_task.sh".format(bucket)
-    success = get_file_from_bucket(bucket, "utils/process_task.sh", local_path_script)
+    local_path_script = "{0}/{1}-process_task.sh".format(LOCAL_TMP_DIR, bucket)
+    success = get_file_from_bucket(bucket, "utils/process_task.sh", local_path_script, override=True)
     if not success:
         printerr("Could not retrieve script to process task of type {0}".format(bucket))
         printerr("Script should be named '{0}' and be located in '{1}'".format("process_task.sh",
@@ -186,13 +191,13 @@ def run_new_task(bucket):
     move_task_between_dirs(bucket, "input", "processing", taskname)
 
     # Download the file locally
-    local_path_taskfile = "/tmp/{0}".format(taskname)
-    success = get_file_from_bucket(bucket, "processing/{0}".format(taskname), local_path_taskfile)
+    local_path_taskfile = "{0}/{1}".format(LOCAL_TMP_DIR, taskname)
+    success = get_file_from_bucket(bucket, "processing/{0}".format(taskname), local_path_taskfile, override=True)
     if not success:
         printerr("Could not download the file data for the task")
         return
 
-    local_output_path = "/tmp/{0}/results".format(contname)
+    local_output_path = "{0}/{1}/results".format(LOCAL_TMP_DIR, contname)
     shutil.rmtree(local_output_path, ignore_errors=True)
     Path(local_output_path).mkdir(parents=True, exist_ok=True)
     # Run the user's script with the file and inside a container
@@ -208,13 +213,13 @@ def run_new_task(bucket):
 def copy_log_to_bucket(taskname):
     myprint("Copying the log of task '{0}' to the 'logs/' dir".format(taskname))
     logname = "out-task-{0}.txt".format(taskname)
-    logfile = "/tmp/{0}".format(logname)
+    logfile = "/{0}/{1}".format(LOCAL_TMP_DIR, logname)
     minio_client.fput_object(bucket, "logs/{0}".format(logname), logfile)
 
 def run_in_worker_process(command, taskname, bucket, local_output_path, cont_last_finished_task):
     #logname = "out-task-{0}-{1}.txt".format(taskname, int(time.time()))
     logname = "out-task-{0}.txt".format(taskname)
-    logfile = "/tmp/{0}".format(logname)
+    logfile = "/{0}/{1}".format(LOCAL_TMP_DIR, logname)
     os.remove(logfile) if os.path.exists(logfile) else None
     with open(logfile, "w") as outfile:
         p = subprocess.run(command, stdout=outfile, stderr=outfile)
@@ -224,6 +229,8 @@ def run_in_worker_process(command, taskname, bucket, local_output_path, cont_las
             move_task_between_dirs(bucket, "processing", "input", taskname)
         else:
             myprint("Task for '{0}' finished successfully".format(taskname))
+            copy_log_to_bucket(taskname)
+            cont_last_finished_task.value = int(time.time())
             myprint("Moving file to 'output'")
             myprint("----------")
             move_task_between_dirs(bucket, "processing", "output", taskname)
@@ -232,9 +239,9 @@ def run_in_worker_process(command, taskname, bucket, local_output_path, cont_las
                 if os.path.isfile(os.path.join(local_output_path, f)):
                     filepath = os.path.join(local_output_path, f)
                     minio_client.fput_object(bucket, "results/{0}".format(f), filepath)
+                    os.remove(filepath)
 
-    copy_log_to_bucket(taskname)
-    cont_last_finished_task.value = int(time.time())
+
 
 
 def get_user(user_name):
@@ -277,6 +284,25 @@ def move_tasks_processing_to_input(bucket):
         move_task_between_dirs(bucket, "processing", "input", filename)
 
 
+def persist_tasks_number(bucket, input_bucket, processing_bucket):
+    def send_num_items(dir, value):
+        ts = dict(
+            metric="bucket.tasks.{0}".format(dir),
+            value=value,
+            timestamp=int(time.time()),
+            tags={"bucket": bucket}
+        )
+        return ts
+    docs = list()
+    docs.append(send_num_items("input", len(input_bucket)))
+    docs.append(send_num_items("processing", len(processing_bucket)))
+    success, error = opentsdb_handler.send_json_documents(docs)
+    if success:
+        pass
+    else:
+        printerr("Couldn't send the time series for 'input' and 'processing' bucket tasks num")
+        printerr(error)
+
 def print_status_message(message, cond):
     if cond:
         if isinstance(cond, list):
@@ -318,13 +344,14 @@ def start_container_process(bucket, contname):
     myprint("Starting container")
     success = start_container(bucket, contname)
     if success:
+        cont_last_finished_task.value = int(time.time())
         myprint("Running new task")
         run_new_task(bucket)
     else:
         printerr("Could not start the container")
 
 
-FUNCTIONS = ["genomics"]
+FUNCTIONS = ["genomics"] # transcode, genomics
 
 if __name__ == '__main__':
     logging.basicConfig(filename='manager.log', level=logging.INFO)
@@ -352,6 +379,7 @@ if __name__ == '__main__':
                 print_status_message("Container running", container_running)
                 print_status_message("Data in input", data_in_input)
                 print_status_message("Data in processing", data_in_processing)
+                persist_tasks_number(bucket, data_in_input, data_in_processing)
 
                 if container_running:
                     if user_status in ["normal"]:
@@ -366,7 +394,7 @@ if __name__ == '__main__':
                     elif user_status in ["broke"]:
                         if data_in_processing:
                             taskname = data_in_processing[0].object_name.replace("processing/", "")
-                            copy_log_to_bucket(taskname, contname)
+                            copy_log_to_bucket(taskname)
                         elif data_in_input:
                             if user_policy == "greedy":
                                 myprint("Running new task")
@@ -378,7 +406,7 @@ if __name__ == '__main__':
                     elif user_status in ["indebt"]:
                         if data_in_processing:
                             taskname = data_in_processing[0].object_name.replace("processing/", "")
-                            copy_log_to_bucket(taskname, contname)
+                            copy_log_to_bucket(taskname)
                         elif data_in_input:
                             myprint("Because user is in debt, no new tasks is started")
                         else:

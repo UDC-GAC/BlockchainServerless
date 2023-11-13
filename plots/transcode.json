@@ -53,7 +53,7 @@
         }
       ],
       "yranges": {
-        "ymax": 450,
+        "ymax": 700,
         "ymin": 0
       }
     },{
@@ -81,6 +81,26 @@
       "yranges": {
         "ymax": 12,
         "ymin": -3
+      }
+    },{
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "bucket.tasks.input",
+          "tags": [
+            "bucket=transcode"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "bucket.tasks.processing",
+          "tags": [
+            "bucket=transcode"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 10,
+        "ymin": 0
       }
     }
   ]
