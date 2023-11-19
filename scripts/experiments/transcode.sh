@@ -1,10 +1,7 @@
-scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
-
 function load_staging_data {
   myecho "This load does not load anything in staging dir"
 }
 
-export exptime=0
 function sumtime {
   declare -A serv
   serv["frog1-360"]="47"
@@ -152,8 +149,7 @@ function sumtime {
   noserv["seagull6-720"]="62"
   noserv["seagull6-1080"]="124"
 
-  if [[ ${test_type} == "serv" ]];
-  then
+  if [[ ${test_type} == "serv" ]]; then
     exptime=$(echo "${exptime} + ${serv["$1"]}" | bc)
   elif [[ ${test_type} == "noserv" ]]; then
     exptime=$(echo "${exptime} + ${noserv["$1"]}" | bc)
@@ -165,84 +161,83 @@ function generate_load_animal {
   sumtime "$1$2-$3"
 }
 
-function generate_load {
-#  for run in {1..6}; do
-#    generate_load_animal "frog" "${run}" "360"
-#    generate_load_animal "frog" "${run}" "540"
-#    generate_load_animal "frog" "${run}" "720"
-#    generate_load_animal "frog" "${run}" "1080"
-#  done
+function wait_experiment {
+  myecho "Experiment estimated time is ${exptime}"
+  sleep_time=$(echo "${exptime} * $1" | bc)
+  myecho "Going to wait for ${sleep_time} to leave some margin"
+  sleep ${sleep_time}
+}
+
+function send_credit {
+  myecho "User sends credit, $1 GRC"
+  apptainer exec instance://grc bash BlockchainServerless/scripts/gridcoin/gridcoin-run.sh move sink user0 $1
+}
+
+function configure_rules {
+  myecho "Configuring Rules"
+  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 100
+  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 4 # default is 6
+  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/set_event_timeout.sh 60                            # default is 80
+}
+
+function gen_load1 {
   generate_load_animal "frog" "1" "1080"
   generate_load_animal "frog" "1" "360"
   generate_load_animal "frog" "2" "360"
   generate_load_animal "frog" "3" "360"
-  generate_load_animal "seagull" "1" "1080"
+  generate_load_animal "frog" "4" "360"
+  generate_load_animal "frog" "1" "720"
+  generate_load_animal "frog" "2" "720"
+  generate_load_animal "seagull" "1" "360"
+  generate_load_animal "seagull" "2" "360"
+  generate_load_animal "seagull" "3" "360"
+}
+
+function gen_load2 {
   generate_load_animal "bird" "1" "540"
+  generate_load_animal "bird" "2" "540"
+  generate_load_animal "bird" "1" "360"
+  generate_load_animal "bird" "2" "360"
+  generate_load_animal "seagull" "4" "360"
+  generate_load_animal "seagull" "1" "720"
+  generate_load_animal "seagull" "2" "720"
+  generate_load_animal "frog" "4" "360"
+  generate_load_animal "seagull" "1" "1080"
+  generate_load_animal "bird" "3" "540"
+}
+
+function gen_load3 {
   generate_load_animal "seagull" "3" "1080"
-  generate_load_animal "bird" "5" "540"
+  generate_load_animal "bird" "3" "540"
   generate_load_animal "bird" "4" "360"
+  generate_load_animal "bird" "5" "720"
+  generate_load_animal "bird" "6" "360"
+  generate_load_animal "bird" "6" "720"
+  generate_load_animal "frog" "2" "1080"
+}
+
+function gen_load4 {
   generate_load_animal "bird" "4" "540"
   generate_load_animal "bird" "6" "720"
   generate_load_animal "bird" "5" "360"
+}
+
+function gen_load5 {
   generate_load_animal "frog" "5" "360"
+  generate_load_animal "frog" "3" "1080"
   generate_load_animal "seagull" "2" "1080"
-
-  echo "Waiting 20 seconds to allow container to start"
-  sleep 20
-  echo "Experiment estimated time is ${exptime}"
-  sleep_time=$(echo "${exptime} * 1.25" | bc )
-  echo "Going to wait for ${sleep_time} to leave some margin"
-  sleep ${sleep_time}
-  exptime=0
-
-  # Frogs take around 2100 seconds in normal and 2180 in serverless
-  #sleep 2250
-  #sleep 2250
-
-#  for run in {1..6}; do
-#    ls animals/seagulls/${run}/seagull${run}-360.mp4
-#    mycopy animals/seagulls/${run}/seagull${run}-360.mp4 "input"
-#    mycopy animals/seagulls/${run}/seagull${run}-540.mp4 "input"
-#    mycopy animals/seagulls/${run}/seagull${run}-720.mp4 "input"
-#    mycopy animals/seagulls/${run}/seagull${run}-1080.mp4 "input"
-#  done
-  # Seagulls take around X seconds in normal and Y in serverless
-  #sleep 2250
-
-#  for run in {1..6}; do
-#    ls animals/birds/${run}/bird${run}-360.mp4
-#    mycopy animals/birds/${run}/bird${run}-360.mp4 "input"
-#    mycopy animals/birds/${run}/bird${run}-540.mp4 "input"
-#    mycopy animals/birds/${run}/bird${run}-720.mp4 "input"
-#    mycopy animals/birds/${run}/bird${run}-1080.mp4 "input"
-#  done
-  # Birds take around X seconds in normal and Y in serverless
-#  myecho "Press any key when tasks are done"
-#  read -p "Press enter to continue"
 }
 
 
-
-function configure_rules {
-  echo "Configuring Rules"
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 150
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 2 # default is 6
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/set_event_timeout.sh 60 # default is 80
-}
-
-export -f generate_load
-export -f generate_load_animal
-export -f load_staging_data
-export -f configure_rules
-export -f sumtime
+export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+source ${scriptDir}/common.sh
 
 export CONT_MAX_CPU=600
+export CONT_BOUNDARY_CPU=50
 export LOAD_NAME="transcode"
-export TIMEOUT=25
-export MIN_BALANCE=1
-export MAX_DEBT="-1"
-export START_CREDIT=100
-
-bash ${scriptDir}/common.sh
-
-
+export LOAD_BUCKET="myminio/${LOAD_NAME}"
+export TIMEOUT=60 #350
+export MIN_BALANCE="0"
+export MAX_DEBT="-2"
+export START_CREDIT=0
+export POLICY="greedy"

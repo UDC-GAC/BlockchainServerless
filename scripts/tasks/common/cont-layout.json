@@ -3,7 +3,7 @@
     "cpu": {
       "max": 1600,
       "current": 1600,
-      "min": 20,
+      "min": 0,
       "boundary": 75,
       "guard": true
     },

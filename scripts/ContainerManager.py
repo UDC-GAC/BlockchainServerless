@@ -1,5 +1,6 @@
 import glob
 import logging
+import multiprocessing
 import os
 import shutil
 import time
@@ -48,6 +49,7 @@ LOCAL_TMP_DIR = "/tmp/jonatan.enes"
 USERNAME = "user0"
 images = {"stress": "stress", "genomics": "genomics", "transcode": "transcode"}
 cont_last_finished_task = Value('i', int(time.time()))
+task_has_finished = multiprocessing.Manager().Lock()
 
 # MinIO configuration
 minio_endpoint = "{0}:9000".format(HOST_1)
@@ -223,6 +225,7 @@ def run_in_worker_process(command, taskname, bucket, local_output_path, cont_las
     os.remove(logfile) if os.path.exists(logfile) else None
     with open(logfile, "w") as outfile:
         p = subprocess.run(command, stdout=outfile, stderr=outfile)
+        task_has_finished.acquire()
         if p.returncode != 0:
             printerr("There was an error running user's script for task '{0}' of type '{1}'".format(taskname, bucket))
             printerr("Moving back the file to 'input'")
@@ -240,7 +243,7 @@ def run_in_worker_process(command, taskname, bucket, local_output_path, cont_las
                     filepath = os.path.join(local_output_path, f)
                     minio_client.fput_object(bucket, "results/{0}".format(f), filepath)
                     os.remove(filepath)
-
+        task_has_finished.release()
 
 
 
@@ -254,9 +257,9 @@ def get_user_status(user_info):
     user_min_balance = user_info["accounting"]["min_balance"]
     if user_balance > user_min_balance and user_balance > 0:
         status = "normal"
-    elif user_balance <= user_min_balance and user_balance >= 0:
+    elif user_balance <= user_min_balance and user_balance > 0:
         status = "broke"
-    elif user_balance < 0 and user_balance > user_max_debt:
+    elif user_balance <= 0 and user_balance > user_max_debt:
         status = "indebt"
     elif user_balance < 0 and user_balance <= user_max_debt:
         status = "scammer"
@@ -351,13 +354,14 @@ def start_container_process(bucket, contname):
         printerr("Could not start the container")
 
 
-FUNCTIONS = ["genomics"] # transcode, genomics
+FUNCTIONS = ["transcode"] # transcode, genomics
 
 if __name__ == '__main__':
     logging.basicConfig(filename='manager.log', level=logging.INFO)
 
     while True:
         try:
+            task_has_finished.acquire()
             user = get_user(USERNAME)
             try:
                 user_status = get_user_status(user)
@@ -408,7 +412,8 @@ if __name__ == '__main__':
                             taskname = data_in_processing[0].object_name.replace("processing/", "")
                             copy_log_to_bucket(taskname)
                         elif data_in_input:
-                            myprint("Because user is in debt, no new tasks is started")
+                            myprint("Because user is in debt, no new tasks are started and container is checked for timeout")
+                            check_container_timeout(bucket, contname)
                         else:
                             check_container_timeout(bucket, contname)
                     elif user_status in ["scammer"]:
@@ -439,6 +444,7 @@ if __name__ == '__main__':
                             pass
                 myprint("----------")
             myprint("Finished epoch\n")
+            task_has_finished.release()
             time.sleep(5)
         except (ValueError, ParseError) as e:
             print(e)

@@ -63,7 +63,7 @@
 \begin{frontmatter}
 
 \title{
-	Blockchain-based resource accounting for a serverless execution platform
+	Blockchain-based resource accounting for a serverless execution
 }
 
 %% Group authors per affiliation:
@@ -105,14 +105,14 @@ anonymous computing, decentralized accounting
 	\item Se definirá 1 o 2 aplicaciones y se usarán en 3 escenarios de gestión del crédito distintos.
 \end{itemize}
 
-\newcommand{\ContainerUp}{Se levanta un contenedor sin nada ejecutándose, con unos recursos asignados iniciales}
+\newcommand{\ContainerUp}{Se levanta un contenedor con unos recursos asignados iniciales}
+\newcommand{\ContainerTimeout}{El contenedor no tiene uso, salta el timeout y se para}
+\newcommand{\ContainerKilled}{El contenedor se para por deuda máxima}
 
 \newcommand{\UserSendsCredit}{El usuario manda crédito}
+\newcommand{\UserSendsSomeTasks}{El usuario manda algunas tareas}
+\newcommand{\UserSendsAllTasks}{El usuario manda todas las tareas}
 \newcommand{\UserNoCredit}{El usuario no tiene crédito}
-\newcommand{\UserAccountingActivated}{Se activa el accounting para el usuario}
-
-\newcommand{\DataGenerationAll}{El usuario manda, o se generan, todos los datos}
-\newcommand{\DataGenerationPartial}{El usuario manda, o se generan, algunos datos}
 
 \newcommand{\ServerlessDown}{La plataforma (serverless) ajusta los recursos a la baja}
 \newcommand{\ServerlessUp}{La plataforma (serverless) ajusta los recursos al alza}
@@ -125,34 +125,56 @@ anonymous computing, decentralized accounting
 \newcommand{\AccountingCredit}{El crédito restante debería ser}
 \newcommand{\CreditDepleted}{Se agota el crédito}
 
-\newcommand{\AppStart}{Arranca la ejecución de}
-\newcommand{\AppRuns}{Continúa la ejecución de la aplicación}
-\newcommand{\AppWaits}{La aplicación se para a la espera de que haya crédito}
-\newcommand{\AppResume}{La aplicación se reanuda}
-
-
+\newcommand{\AppStart}{Arranca el procesamiento de datos}
+\newcommand{\AppRuns}{Continúa el procesamiento de datos}
+\newcommand{\AppWaits}{El procesamiento de datos se para hasta que haya crédito}
 \newcommand{\Wait}{Se espera un tiempo}
 
+
 \newpage
-\section{Basic Experiment}
+\section{Basic processing}
+
 
 \noindent 
-Este experimento busca demostrar de forma específica como se \textbf{aplican y levantan las restricciones} en una misma ejecución y a lo largo del tiempo, la posibilidad de tener una \textbf{deuda}, y de que la \textbf{aplicación no interrumpa su ejecución} en ningún momento (siempre que pueda sobrevivir la restricción).\\
+Este experimento busca demostrar de forma específica como el usuario puede manejar la \textbf{ejecución} de su aplicación de forma emparejada con el \textbf{consumo} de crédito, optimizando y controlando dicho gasto en todo momento. La secuencia sería:
+
+\begin{itemize}
+	\setlength\itemsep{0em}
+	\item \UserNoCredit
+	\item \UserSendsCredit, muy poco ($\approx 1~GRC$)
+	\item \UserSendsSomeTasks
+	\item \ContainerUp
+	\item \AppStart
+	\item \ServerlessAdapts
+	\item \AccountingConsumes
+	\item \AppRuns
+	\item De forma periódica y durante la ejecución:
+	\begin{itemize}
+		\item \UserSendsSomeTasks
+		\item \UserSendsCredit, poco ($ \approx 0.25~GRC$)
+	\end{itemize}
+	\item El usuario para de mandar crédito y datos
+	\item \AppRuns~hasta su finalización
+	\item \ServerlessDown
+	\item \AccountingIdle
+	\item \ContainerTimeout
+	\item \AccountingCredit~$\approx 0$
+\end{itemize}
+
+\newpage
+\section{Greedy Experiment}
 
 \noindent 
-La secuencia sería:
+Este experimento busca demostrar de forma específica como se \textbf{aplican y levantan las restricciones} en una misma ejecución y a lo largo del tiempo, la posibilidad de tener una \textbf{deuda}, y de que la \textbf{aplicación no interrumpa su ejecución} en ningún momento (siempre que pueda sobrevivir la restricción). La secuencia sería:
 \begin{itemize}
 	\setlength\itemsep{0em}
 	\setlength{\itemindent}{-2mm}
-	\item \DataGenerationAll
-	\item \ContainerUp
+	\item \UserSendsAllTasks
 	\item \UserNoCredit
 	\item \UserSendsCredit, poco ($\approx 6~GRC$)
-	\item \UserAccountingActivated
-	\item \ServerlessDown
-	\item \AccountingIdle
+	\item \ContainerUp
 	\item \AppStart
-	\item \ServerlessUp
+	\item \ServerlessAdapts
 	\item \AccountingConsumes
 	\item \AppRuns
 	\item \UserSendsCredit, una cantidad justa ($ > 4~GRC$), cuando el crédito restante sea bajo ($ < 2~GRC$)
@@ -161,104 +183,53 @@ La secuencia sería:
 	\item \AccountingRestricts
 	\item \AppRuns~con los recursos restringidos (mínimos)
 	\item \AccountingConsumes, se genera una ligera deuda
+	\item \UserSendsCredit, una cantidad justa ($ > 4~GRC$), la deuda se paga y el crédito ahora es justo
+	\item \AccountingAllows
+	\item \AppRuns~hasta que se consume todo el crédito 
+	\item \CreditDepleted
+	\item \AccountingRestricts
+	\item \AppRuns hasta incurrir en la deuda máxima
+	\item \ContainerKilled
 	\item \UserSendsCredit, una cantidad generosa ($ > 10~GRC$)
+	\item \ContainerUp
 	\item \AccountingAllows
 	\item \ServerlessAdapts
 	\item \AppRuns~hasta su finalización
 	\item \ServerlessDown
 	\item \AccountingIdle
+	\item \ContainerTimeout
 	\item \AccountingCredit~$ > 0~GRC$
 \end{itemize}
 
 
+
 \newpage
-\section{Trickle processing}
-
-
-\noindent 
-Este experimento busca demostrar de forma específica como el usuario puede manejar la \textbf{ejecución} de su aplicación de forma emparejada con el \textbf{consumo} de crédito, optimizando y controlando dicho gasto en todo momento.\\
+\section{Conservative processing}
 
 \noindent 
-La secuencia sería:
+Este experimento busca demostrar de forma específica como el usuario puede delegar en la aplicación la gestión del consumo de recursos en base al crédito disponible, controlando ahora de manera más indirecta el consumo de recursos y crédito. Hay dos variantes, la de la aplicación que prefiere consumir todo el crédito aunque incurra en una restricción después (greedy), y la que prefiere evitar esto monitorizando el saldo que le queda (polite). Se puede configurar este \textit{umbral de parada} (e.g., 2 GRC). La secuencia sería:
 
 \begin{itemize}
 	\setlength\itemsep{0em}
-	\item \ContainerUp
 	\item \UserNoCredit
-	\item \UserSendsCredit, muy poco ($\approx 1~GRC$)
-	\item \DataGenerationPartial
-	\item \UserAccountingActivated
-	\item \ServerlessDown
-	\item \AccountingIdle
-	\item \AppStart
-	\item \ServerlessUp
-	\item \AccountingConsumes
-	\item \AppRuns
-	\item De forma periódica y durante la ejecución:
-	\begin{itemize}
-		\item \DataGenerationPartial
-		\item \UserSendsCredit, poco ($ \approx 0.25~GRC$)
-	\end{itemize}
-	\item El usuario para de mandar crédito y datos
-	\item \AppRuns~hasta su finalización
-	\item \ServerlessDown
-	\item \AccountingIdle
-	\item \AccountingCredit~$\approx 0$
-\end{itemize}
-
-
-\newpage
-\section{Credit-aware processing}
-
-\noindent 
-Este experimento busca demostrar de forma específica como el usuario puede delegar en la aplicación la gestión del consumo de recursos en base al crédito disponible, controlando ahora de manera más indirecta el consumo de recursos y crédito. Hay dos variantes, la de la aplicación que prefiere consumir todo el crédito aunque incurra en una restricción después (greedy), y la que prefiere evitar esto monitorizando el saldo que le queda (polite). Se puede configurar este \textit{umbral de parada} (e.g., 2 GRC)\\
-
-\noindent 
-La secuencia sería:
-
-\begin{itemize}
-	\setlength\itemsep{0em}
-	\item \ContainerUp
-	\item \UserNoCredit
-	\item \UserAccountingActivated
-	\item \AccountingRestricts
-	\item \AppStart
-	\item \AppWaits~(ahora crédito $= 0~GRC$)
-	\item \DataGenerationPartial
+	\item \UserSendsSomeTasks
 	\item \UserSendsCredit~($\approx 10~GRC$)
-	\item \AccountingAllows
-	\item \AppResume
+	\item \ContainerUp
+	\item \AppStart
 	\item \ServerlessAdapts
-	
-	\item \textbf{Escenario Polite}
-	\begin{itemize}
-		\item \AppRuns, hasta que el crédito esté próximo a agotarse, para evitar una restricción
-		\item \AppWaits~(ahora crédito $\approx 2~GRC$)
-		\item \ServerlessDown
-	\end{itemize}
-
-	\item \textbf{Escenario Greedy}
-	\begin{itemize}
-		\item \AppRuns~mientras tiene recursos, o sus métricas de rendimiento son buenas, hasta que se consume todo el crédito 
-		\item \AccountingRestricts
-		\item \AppRuns, pero ahora los recursos son mínimos, la aplicación decide parar
-	\end{itemize}
-
+	\item \AppRuns, hasta que el crédito esté próximo a agotarse, para evitar una restricción
+	\item \AppWaits~(ahora crédito $\approx 2~GRC$)
+	\item \ServerlessDown
 	\item \AccountingIdle
 	\item \Wait
 	\item \UserSendsCredit~($\approx 10~GRC$)
-	\item \DataGenerationPartial
-
-	\item \textbf{Escenario Greedy}
-	\begin{itemize}
-		\item \AccountingAllows
-	\end{itemize}	
-
-	\item \AppResume, ahora que hay crédito disponible
+	\item \UserSendsSomeTasks
+	\item \AppRuns, ahora que hay crédito disponible
 	\item \ServerlessAdapts
 	\item \AppRuns, hasta finalizar
 	\item \ServerlessDown
 	\item \AccountingIdle
+	\item \ContainerTimeout
 	\item \AccountingCredit~$> 0$
 \end{itemize}
 

@@ -69,6 +69,7 @@ function configure_rules {
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 250
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 6 # default is 6
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/set_event_timeout.sh 80 # default is 80
+  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Limits/set_new_boundary.sh transcode-cont cpu 75
 }
 
 export -f generate_load
