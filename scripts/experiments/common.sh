@@ -63,6 +63,18 @@ function set_user_credit {
   set_accounting "false"
 }
 
+function send_credit {
+  myecho "User sends credit, $1 GRC"
+  apptainer exec instance://grc bash BlockchainServerless/scripts/gridcoin/gridcoin-run.sh move sink user0 $1
+}
+
+function wait_experiment {
+  myecho "Experiment estimated time is ${exptime}"
+  sleep_time=$(echo "${exptime} * $1" | bc)
+  myecho "Going to wait for ${sleep_time} to leave some margin"
+  sleep ${sleep_time}
+}
+
 function wait_container_timeout {
   myecho "Waiting container timeout (${TIMEOUT})"
   sleep $TIMEOUT

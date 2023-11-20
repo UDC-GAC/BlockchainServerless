@@ -6,15 +6,15 @@ function generate_load {
   gen_load1
   myecho "Waiting 20 seconds to allow container to start"
   sleep 20
-  wait_experiment "1.15"
+  wait_experiment "1.20"
 
   export exptime=0
   gen_load2
-  wait_experiment "1.15"
+  wait_experiment "1.20"
 
   export exptime=0
   gen_load3
-  wait_experiment "1.15"
+  wait_experiment "1.20"
 }
 
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
@@ -24,7 +24,7 @@ export START_CREDIT=5
 export MAX_DEBT="-0.5"
 export POLICY="greedy"
 
-export exp_name="$(date "+%m_%d_%H:%M")_4fold"
+export exp_name="$(date "+%m_%d_%H:%M")_transcode_4fold"
 
 setup_exp
 run_4_fold_exp

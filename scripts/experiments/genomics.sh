@@ -48,41 +48,29 @@ function generate_load_sample {
   sumtime "$1"
 }
 
-function generate_load {
-  #generate_load_sample "bacteria.1001.1.genomic.fna.gz"
-  generate_load_sample "bacteria.1002.1.genomic.fna.gz"
-  generate_load_sample "bacteria.1003.1.genomic.fna.gz"
-  generate_load_sample "bacteria.1004.1.genomic.fna.gz"
-
-  echo "Waiting 20 seconds to allow container to start"
-  sleep 20
-  echo "Experiment estimated time is ${exptime}"
-  sleep_time=$(echo "${exptime} * 1.20" | bc )
-  echo "Going to wait for ${sleep_time} to leave some margin"
-  sleep ${sleep_time}
-  exptime=0
-
-}
-
 function configure_rules {
   echo "Configuring Rules"
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 250
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 6 # default is 6
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/set_event_timeout.sh 80 # default is 80
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Limits/set_new_boundary.sh transcode-cont cpu 75
 }
 
-export -f generate_load
-export -f generate_load_sample
-export -f load_staging_data
-export -f configure_rules
-export -f sumtime
+function gen_load1 {
+  generate_load_sample "bacteria.1001.1.genomic.fna.gz"
+  generate_load_sample "bacteria.1002.1.genomic.fna.gz"
+  generate_load_sample "bacteria.1003.1.genomic.fna.gz"
+  #generate_load_sample "bacteria.1004.1.genomic.fna.gz"
+}
+
+export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+source ${scriptDir}/common.sh
 
 export CONT_MAX_CPU=1200
+export CONT_BOUNDARY_CPU=75
 export LOAD_NAME="genomics"
+export LOAD_BUCKET="myminio/${LOAD_NAME}"
 export TIMEOUT=25
 export MIN_BALANCE=1
 export MAX_DEBT="-1"
-export START_CREDIT=200
-
-bash ${scriptDir}/common.sh
+export START_CREDIT=30
+export POLICY="greedy"

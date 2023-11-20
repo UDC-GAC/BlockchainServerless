@@ -52,7 +52,7 @@ function generate_load {
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 source ${scriptDir}/transcode.sh
 export TIMEOUT=200
-export exp_name="$(date "+%m_%d_%H:%M")_basic"
+export exp_name="$(date "+%m_%d_%H:%M")_transcode_basic"
 
 setup_exp
 run_simple_exp

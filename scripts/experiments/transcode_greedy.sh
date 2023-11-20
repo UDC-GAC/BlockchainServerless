@@ -31,16 +31,18 @@ function generate_load {
   #phase 3 0 400
   #myecho "Some debt should have been generated up to now and restrictions should have been applied"
   #myecho "Sending more credit to pay the debt, which should be about 1 GRC, raise the restrictions and continue processing"
-  phase 4 3 900
+  phase 2 3 900
   myecho "The maximum debt should have been generated now, restrictions should have been applied, and the container/processing must have been stopped"
   myecho "Sending more credit to pay the debt, start a new container and finish the processing"
-  phase 5 4 1000
+  phase 3 4 1000
 }
 
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 source ${scriptDir}/transcode.sh
 
-export exp_name="$(date "+%m_%d_%H:%M")_greedy"
+export TIMEOUT=200
+
+export exp_name="$(date "+%m_%d_%H:%M")_transcode_greedy"
 
 setup_exp
 run_simple_exp

@@ -354,7 +354,7 @@ def start_container_process(bucket, contname):
         printerr("Could not start the container")
 
 
-FUNCTIONS = ["transcode"] # transcode, genomics
+FUNCTIONS = ["genomics"] # transcode, genomics
 
 if __name__ == '__main__':
     logging.basicConfig(filename='manager.log', level=logging.INFO)
@@ -404,7 +404,8 @@ if __name__ == '__main__':
                                 myprint("Running new task")
                                 run_new_task(bucket)
                             else:
-                                myprint("User policy does not allow to start a new task")
+                                myprint("User policy does not allow to start a new task, container will be checked for timeout")
+                                check_container_timeout(bucket, contname)
                         else:
                             check_container_timeout(bucket, contname)
                     elif user_status in ["indebt"]:

@@ -11,13 +11,6 @@
         },
         {
           "aggregator": "zimsum",
-          "metric": "proc.cpu.kernel",
-          "tags": [
-            "host=transcode-cont"
-          ]
-        },
-        {
-          "aggregator": "zimsum",
           "metric": "structure.cpu.max",
           "tags": [
             "structure=transcode-cont"
