@@ -1,5 +1,5 @@
-{"type": "experiment", "info": {"username": "root", "start_time": 1700478299, "end_time": 1700495169, "experiment_id": "genomics_4fold_1"}}
-{"type": "test", "info": {"username": "root", "start_time": 1700478319, "end_time": 1700482300, "experiment_id": "genomics_4fold_1", "test_id": "genomics_4fold_1_1.serv_acct", "test_name": "1.serv_acct"}}
-{"type": "test", "info": {"username": "root", "start_time": 1700482709, "end_time": 1700486690, "experiment_id": "genomics_4fold_1", "test_id": "genomics_4fold_1_2.serv_noacct", "test_name": "2.serv_noacct"}}
-{"type": "test", "info": {"username": "root", "start_time": 1700487098, "end_time": 1700491087, "experiment_id": "genomics_4fold_1", "test_id": "genomics_4fold_1_3.noserv_acct", "test_name": "3.noserv_acct"}}
-{"type": "test", "info": {"username": "root", "start_time": 1700491144, "end_time": 1700495132, "experiment_id": "genomics_4fold_1", "test_id": "genomics_4fold_1_4.noserv_noacct", "test_name": "4.noserv_noacct"}}
+{"type": "experiment", "info": {"username": "root", "start_time": 1700478299, "end_time": 1700495169, "experiment_id": "genomics_4fold_4"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700478319, "end_time": 1700482300, "experiment_id": "genomics_4fold_4", "test_id": "genomics_4fold_4_1.serv_acct", "test_name": "1.serv_acct"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700482709, "end_time": 1700486690, "experiment_id": "genomics_4fold_4", "test_id": "genomics_4fold_4_2.serv_noacct", "test_name": "2.serv_noacct"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700487098, "end_time": 1700491087, "experiment_id": "genomics_4fold_4", "test_id": "genomics_4fold_4_3.noserv_acct", "test_name": "3.noserv_acct"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700491144, "end_time": 1700495132, "experiment_id": "genomics_4fold_4", "test_id": "genomics_4fold_4_4.noserv_noacct", "test_name": "4.noserv_noacct"}}

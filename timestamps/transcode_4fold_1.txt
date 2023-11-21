@@ -1,5 +1,5 @@
-{"type": "experiment", "info": {"username": "root", "start_time": 1700346674, "end_time": 1700356548, "experiment_id": "transcode_4fold_1"}}
-{"type": "test", "info": {"username": "root", "start_time": 1700346694, "end_time": 1700349115, "experiment_id": "transcode_4fold_1", "test_id": "transcode_4fold_1_1.serv_acct", "test_name": "1.serv_acct"}}
-{"type": "test", "info": {"username": "root", "start_time": 1700349208, "end_time": 1700351629, "experiment_id": "transcode_4fold_1", "test_id": "transcode_4fold_1_2.serv_noacct", "test_name": "2.serv_noacct"}}
-{"type": "test", "info": {"username": "root", "start_time": 1700351721, "end_time": 1700354053, "experiment_id": "transcode_4fold_1", "test_id": "transcode_4fold_1_3.noserv_acct", "test_name": "3.noserv_acct"}}
-{"type": "test", "info": {"username": "root", "start_time": 1700354145, "end_time": 1700356475, "experiment_id": "transcode_4fold_1", "test_id": "transcode_4fold_1_4.noserv_noacct", "test_name": "4.noserv_noacct"}}
+{"type": "experiment", "info": {"username": "root", "start_time": 1700346674, "end_time": 1700356548, "experiment_id": "transcode_4fold_4"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700346694, "end_time": 1700349115, "experiment_id": "transcode_4fold_4", "test_id": "transcode_4fold_4_1.serv_acct", "test_name": "1.serv_acct"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700349208, "end_time": 1700351629, "experiment_id": "transcode_4fold_4", "test_id": "transcode_4fold_4_2.serv_noacct", "test_name": "2.serv_noacct"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700351721, "end_time": 1700354053, "experiment_id": "transcode_4fold_4", "test_id": "transcode_4fold_4_3.noserv_acct", "test_name": "3.noserv_acct"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700354145, "end_time": 1700356475, "experiment_id": "transcode_4fold_4", "test_id": "transcode_4fold_4_4.noserv_noacct", "test_name": "4.noserv_noacct"}}
