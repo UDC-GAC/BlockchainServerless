@@ -77,6 +77,8 @@ ${GatkBin} BwaMemIndexImageCreator \
 #   --filter-bwa-image ${EnvDir}/Homo_sapiens_assembly38.fasta.img \
 #   -- --spark-runner SPARK --spark-master local[${PAR_DEGREE}] --driver-memory 80G
 
+rm ${EnvDir}/${SampleID}_pairedV2.bam
+rm ${EnvDir}/${SampleID}_unpairedV2.bam
 
 echo "Pairing with Microbe references from ${IN_FILE}"
 ${GatkBin} PathSeqBwaSpark  \
@@ -94,14 +96,14 @@ ${GatkBin} PathSeqScoreSpark \
         --paired-input ${EnvDir}/${SampleID}_pairedV2.bam \
         --unpaired-input ${EnvDir}/${SampleID}_unpairedV2.bam \
         --taxonomy-file ${TAX_FILE} \
-        --scores-output ${StagingDir}/${BASE_FILE}_scores.txt \
+        --scores-output ${BASE_FILE}_scores.txt \
         --output ${StagingDir}/output.bam \
         --min-score-identity 0.90 \
         --identity-margin 0.02 \
         -- --spark-runner SPARK --spark-master local[${PAR_DEGREE}] --driver-memory 80G
 exit_code=$?
 
-cp ${StagingDir}/${BASE_FILE}_scores.txt ${OUT_DIR}
+cp ${BASE_FILE}_scores.txt ${OUT_DIR}
 
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
@@ -110,6 +112,5 @@ end_time=$(date "+%s")
 time_diff=$(echo "${end_time} - ${start_time}" | bc)
 echo "Time is $(date "+%H:%M"), it took ${time_diff} seconds"
 echo "Doing checksum of ${BASE_FILE}_scores.txt"
-md5sum ${StagingDir}/${BASE_FILE}_scores.txt
-#exit $exit_code
-exit 0
+md5sum ${BASE_FILE}_scores.txt
+exit $exit_code

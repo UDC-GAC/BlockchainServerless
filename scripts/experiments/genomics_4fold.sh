@@ -11,10 +11,11 @@ source ${scriptDir}/genomics.sh
 
 export START_CREDIT=20
 export MIN_BALANCE=8
-export MAX_DEBT="-1"
+export MAX_DEBT="-3"
 export POLICY="conservative"
+export TIMEOUT=120
 
-export exp_name="$(date "+%m_%d_%H:%M")_genomics_4fold"
-
+export exp_name="genomics_4fold_4"
 setup_exp
 run_4_fold_exp
+sleep 120

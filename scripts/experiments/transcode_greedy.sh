@@ -23,7 +23,7 @@ function generate_load {
 #  myecho "Wait a little bit, tasks will be queued waiting for credit"
 #  sleep 120
   myecho "Sending now some credit to compute some tasks"
-  phase 1 4 1650
+  phase 1 4 1750
   #myecho "Credit should be now between 0 and 2"
   #myecho "Sending now some more credit to compute some tasks"
   #phase 2 0 750
@@ -40,9 +40,19 @@ function generate_load {
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 source ${scriptDir}/transcode.sh
 
-export TIMEOUT=200
+export TIMEOUT=300
 
-export exp_name="$(date "+%m_%d_%H:%M")_transcode_greedy"
-
+export exp_name="transcode_greedy_1"
 setup_exp
 run_simple_exp
+sleep 120
+
+export exp_name="transcode_greedy_2"
+setup_exp
+run_simple_exp
+sleep 120
+
+export exp_name="transcode_greedy_3"
+setup_exp
+run_simple_exp
+sleep 120

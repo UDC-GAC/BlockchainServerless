@@ -5,7 +5,7 @@ Stage: build
 %files
 
     /home/jonatan.enes/gatk-4.4.0.0 /opt/gatk
-    /home/jonatan.enes/NA12878.chr17_69k_70k.dictFix.bam /opt/test/
+    #/home/jonatan.enes/NA12878.chr17_69k_70k.dictFix.bam /opt/test/
 
 %post
    	
@@ -21,6 +21,6 @@ Stage: build
 	pip3 install pyspark spark-submit
 
 	# Test
-    /opt/gatk/gatk PrintReads -I /opt/test/NA12878.chr17_69k_70k.dictFix.bam -O output.bam
+    #/opt/gatk/gatk PrintReads -I /opt/test/NA12878.chr17_69k_70k.dictFix.bam -O output.bam
     
 

@@ -49,7 +49,7 @@ function generate_load_sample {
 }
 
 function configure_rules {
-  echo "Configuring Rules"
+  myecho "Configuring Rules"
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 250
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 6 # default is 6
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/set_event_timeout.sh 80 # default is 80

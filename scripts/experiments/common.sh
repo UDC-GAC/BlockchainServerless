@@ -33,7 +33,7 @@ function set_user_max_debt {
 }
 
 function signal_test {
-  myecho "Signaling experiment test start"
+  myecho "Signaling experiment test ${1}"
   python3 BDWatchdog/TimestampsSnitch/src/timestamping/signal_test.py ${1} ${exp_name} ${test_name} --push --username root
 }
 

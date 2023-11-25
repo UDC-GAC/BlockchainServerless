@@ -28,7 +28,7 @@ apptainer build --force base.sif BlockchainServerless/containers/base.def
 
 # Construir los contenedores de experimentación
 apptainer build --force stress.sif BlockchainServerless/containers/stress.def
-apptainer build --force gatk.sif BlockchainServerless/containers/gatk.def
+apptainer build --force genomics.sif BlockchainServerless/containers/genomics.def
 apptainer build --force transcode.sif BlockchainServerless/containers/transcode.def
 
 
