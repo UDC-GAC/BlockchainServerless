@@ -15,17 +15,7 @@ export MAX_DEBT="-3" # Not actually used
 export POLICY="conservative"
 export TIMEOUT=120
 
-export exp_name="genomics_conservative_1"
+export exp_name="genomics_conservative_4"
 setup_exp
 run_simple_exp
 sleep 120
-
-#export exp_name="genomics_conservative_2"
-#setup_exp
-#run_simple_exp
-#sleep 120
-#
-#export exp_name="genomics_conservative_3"
-#setup_exp
-#run_simple_exp
-#sleep 120

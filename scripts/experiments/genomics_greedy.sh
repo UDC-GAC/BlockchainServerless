@@ -14,17 +14,7 @@ export MAX_DEBT="-3"
 export POLICY="greedy"
 export TIMEOUT=120
 
-export exp_name="genomics_greedy_1"
-setup_exp
-run_simple_exp
-sleep 120
-
-export exp_name="genomics_greedy_2"
-setup_exp
-run_simple_exp
-sleep 120
-
-export exp_name="genomics_greedy_3"
+export exp_name="genomics_greedy_4"
 setup_exp
 run_simple_exp
 sleep 120

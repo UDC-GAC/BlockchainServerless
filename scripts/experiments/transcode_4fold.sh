@@ -18,18 +18,7 @@ export START_CREDIT=5
 export MAX_DEBT="-1"
 export POLICY="greedy"
 
-
-export exp_name="transcode_4fold_1"
-setup_exp
-run_4_fold_exp
-sleep 120
-
-export exp_name="transcode_4fold_2"
-setup_exp
-run_4_fold_exp
-sleep 120
-
-export exp_name="transcode_4fold_3"
+export exp_name="transcode_4fold_4"
 setup_exp
 run_4_fold_exp
 sleep 120

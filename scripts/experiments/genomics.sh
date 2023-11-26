@@ -12,12 +12,8 @@ function load_staging_data {
 #  mc cp STORE/data/metagenomics/input/sample_processed/13566_5_232.bam myminio/genomics/staging/
 #  mc cp STORE/data/metagenomics/input/sample_processed/13566_5_232_paired.bam myminio/genomics/staging/
 #  mc cp STORE/data/metagenomics/input/sample_processed/13566_5_232_paired.bam.sbi myminio/genomics/staging/
-#  mc cp STORE/data/metagenomics/input/sample_processed/13566_5_232_pairedV2.bam myminio/genomics/staging/
-#  mc cp STORE/data/metagenomics/input/sample_processed/13566_5_232_pairedV2.bam.sbi myminio/genomics/staging/
 #  mc cp STORE/data/metagenomics/input/sample_processed/13566_5_232_unpaired.bam myminio/genomics/staging/
 #  mc cp STORE/data/metagenomics/input/sample_processed/13566_5_232_unpaired.bam.sbi myminio/genomics/staging/
-#  mc cp STORE/data/metagenomics/input/sample_processed/13566_5_232_unpairedV2.bam myminio/genomics/staging/
-#  mc cp STORE/data/metagenomics/input/sample_processed/13566_5_232_unpairedV2.bam.sbi myminio/genomics/staging/
   echo ""
 }
 

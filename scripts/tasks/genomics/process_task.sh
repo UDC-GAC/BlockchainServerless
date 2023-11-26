@@ -78,7 +78,10 @@ ${GatkBin} BwaMemIndexImageCreator \
 #   -- --spark-runner SPARK --spark-master local[${PAR_DEGREE}] --driver-memory 80G
 
 rm ${EnvDir}/${SampleID}_pairedV2.bam
+rm ${EnvDir}/${SampleID}_pairedV2.bam.sbi
+rm -Rf ${EnvDir}/${SampleID}_pairedV2.bam.parts
 rm ${EnvDir}/${SampleID}_unpairedV2.bam
+rm ${EnvDir}/${SampleID}_unpairedV2.bam.sbi
 
 echo "Pairing with Microbe references from ${IN_FILE}"
 ${GatkBin} PathSeqBwaSpark  \

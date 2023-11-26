@@ -2,11 +2,8 @@ scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 
 function phase {
   send_credit $2
-  export test_name="$1"
-  signal_test "start"
   myecho "Going to wait for $3"
   sleep "$3"
-  signal_test "end"
 }
 
 function generate_load {
@@ -42,17 +39,7 @@ source ${scriptDir}/transcode.sh
 
 export TIMEOUT=300
 
-export exp_name="transcode_greedy_1"
-setup_exp
-run_simple_exp
-sleep 120
-
-export exp_name="transcode_greedy_2"
-setup_exp
-run_simple_exp
-sleep 120
-
-export exp_name="transcode_greedy_3"
+export exp_name="transcode_greedy_4"
 setup_exp
 run_simple_exp
 sleep 120
