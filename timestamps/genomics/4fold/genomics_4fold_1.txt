@@ -1,0 +1,5 @@
+{"type": "experiment", "info": {"username": "root", "start_time": 1700690597, "end_time": 1700707847, "experiment_id": "genomics_4fold_1"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700690617, "end_time": 1700694950, "experiment_id": "genomics_4fold_1", "test_id": "genomics_4fold_1_1.serv_acct", "test_name": "1.serv_acct"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700695102, "end_time": 1700699435, "experiment_id": "genomics_4fold_1", "test_id": "genomics_4fold_1_2.serv_noacct", "test_name": "2.serv_noacct"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700699586, "end_time": 1700703575, "experiment_id": "genomics_4fold_1", "test_id": "genomics_4fold_1_3.noserv_acct", "test_name": "3.noserv_acct"}}
+{"type": "test", "info": {"username": "root", "start_time": 1700703727, "end_time": 1700707716, "experiment_id": "genomics_4fold_1", "test_id": "genomics_4fold_1_4.noserv_noacct", "test_name": "4.noserv_noacct"}}
