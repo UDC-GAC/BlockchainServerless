@@ -15,24 +15,55 @@ source /home/jonatan/Desktop/development/BDWatchdog/set_pythonpath.sh
 BDW_PATH="/home/jonatan/Desktop/development/BDWatchdog/"
 
 EXP="transcode_basic_1"
-get_times >> transcode/basic/transcode_basic_1.txt
+get_times > transcode/basic/transcode_basic_1.txt
 EXP="transcode_basic_2"
-get_times >> transcode/basic/transcode_basic_2.txt
+get_times > transcode/basic/transcode_basic_2.txt
 EXP="transcode_basic_3"
-get_times >> transcode/basic/transcode_basic_3.txt
+get_times > transcode/basic/transcode_basic_3.txt
+EXP="transcode_basic_4"
+get_times > transcode/basic/transcode_basic_4.txt
 
 EXP="transcode_greedy_1"
-get_times >> transcode/greedy/transcode_greedy_1.txt
+get_times > transcode/greedy/transcode_greedy_1.txt
 EXP="transcode_greedy_2"
-get_times >> transcode/greedy/transcode_greedy_2.txt
+get_times > transcode/greedy/transcode_greedy_2.txt
 EXP="transcode_greedy_3"
-get_times >> transcode/greedy/transcode_greedy_3.txt
+get_times > transcode/greedy/transcode_greedy_3.txt
+EXP="transcode_greedy_4"
+get_times > transcode/greedy/transcode_greedy_4.txt
 
 EXP="transcode_4fold_1"
-get_4fold_times >> transcode/4fold/transcode_4fold_1.txt
+get_4fold_times > transcode/4fold/transcode_4fold_1.txt
 EXP="transcode_4fold_2"
-get_4fold_times >> transcode/4fold/transcode_4fold_2.txt
+get_4fold_times > transcode/4fold/transcode_4fold_2.txt
 EXP="transcode_4fold_3"
-get_4fold_times >> transcode/4fold/transcode_4fold_3.txt
+get_4fold_times > transcode/4fold/transcode_4fold_3.txt
+EXP="transcode_4fold_4"
+get_4fold_times > transcode/4fold/transcode_4fold_4.txt
 
+EXP="genomics_greedy_1"
+get_times > genomics/greedy/genomics_greedy_1.txt
+EXP="genomics_greedy_2"
+get_times > genomics/greedy/genomics_greedy_2.txt
+EXP="genomics_greedy_3"
+get_times > genomics/greedy/genomics_greedy_3.txt
+EXP="genomics_greedy_4"
+get_times > genomics/greedy/genomics_greedy_4.txt
 
+EXP="genomics_conservative_1"
+get_times > genomics/basic/genomics_conservative_1.txt
+EXP="genomics_conservative_2"
+get_times > genomics/basic/genomics_conservative_2.txt
+EXP="genomics_conservative_3"
+get_times > genomics/basic/genomics_conservative_3.txt
+EXP="genomics_conservative_4"
+get_times > genomics/basic/genomics_conservative_4.txt
+
+EXP="genomics_4fold_1"
+get_4fold_times > genomics/4fold/genomics_4fold_1.txt
+EXP="genomics_4fold_2"
+get_4fold_times > genomics/4fold/genomics_4fold_2.txt
+EXP="genomics_4fold_3"
+get_4fold_times > genomics/4fold/genomics_4fold_3.txt
+EXP="genomics_4fold_4"
+get_4fold_times > genomics/4fold/genomics_4fold_4.txt
