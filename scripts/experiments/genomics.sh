@@ -24,12 +24,18 @@ function sumtime {
   serv["bacteria.1002.1.genomic.fna.gz"]="724"
   serv["bacteria.1003.1.genomic.fna.gz"]="1407"
   serv["bacteria.1004.1.genomic.fna.gz"]="1190"
+  serv["bacteria.1005.1.genomic.fna.gz"]="0"
+  serv["bacteria.1006.1.genomic.fna.gz"]="0"
+  serv["bacteria.1007.1.genomic.fna.gz"]="0"
 
   declare -A noserv
   noserv["bacteria.1001.1.genomic.fna.gz"]="1252"
   noserv["bacteria.1002.1.genomic.fna.gz"]="610"
   noserv["bacteria.1003.1.genomic.fna.gz"]="1326"
   noserv["bacteria.1004.1.genomic.fna.gz"]="1046"
+  noserv["bacteria.1005.1.genomic.fna.gz"]="0"
+  noserv["bacteria.1006.1.genomic.fna.gz"]="0"
+  noserv["bacteria.1007.1.genomic.fna.gz"]="0"
 
   if [[ ${test_type} == "serv" ]];
   then
@@ -56,6 +62,15 @@ function gen_load1 {
   generate_load_sample "bacteria.1002.1.genomic.fna.gz"
   generate_load_sample "bacteria.1003.1.genomic.fna.gz"
   #generate_load_sample "bacteria.1004.1.genomic.fna.gz"
+}
+
+function gen_load_long {
+  #generate_load_sample "bacteria.1001.1.genomic.fna.gz"
+  #generate_load_sample "bacteria.1002.1.genomic.fna.gz"
+  #generate_load_sample "bacteria.1003.1.genomic.fna.gz"
+  generate_load_sample "bacteria.1004.1.genomic.fna.gz"
+  generate_load_sample "bacteria.1005.1.genomic.fna.gz"
+  generate_load_sample "bacteria.1006.1.genomic.fna.gz"
 }
 
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")

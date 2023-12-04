@@ -68,5 +68,9 @@ get_4fold_times > genomics/4fold/${EXP}.txt
 EXP="genomics_4fold_4"
 get_4fold_times > genomics/4fold/${EXP}.txt
 
-EXP="GRC_EXP"
-python3 ${BDW_PATH}/TimestampsSnitch/src/timestamping/signal_experiment.py info "${EXP}" --username="root" > grc_transaction/grc_exp.txt
+EXP="GRC_EXP_1"
+python3 ${BDW_PATH}/TimestampsSnitch/src/timestamping/signal_experiment.py info "${EXP}" --username="root" > grc_transaction/grc_exp_1.txt
+EXP="GRC_EXP_2"
+python3 ${BDW_PATH}/TimestampsSnitch/src/timestamping/signal_experiment.py info "${EXP}" --username="root" > grc_transaction/grc_exp_2.txt
+EXP="GRC_EXP_3"
+python3 ${BDW_PATH}/TimestampsSnitch/src/timestamping/signal_experiment.py info "${EXP}" --username="root" > grc_transaction/grc_exp_3.txt

@@ -6,6 +6,10 @@ TIMESTAMPING_PATH="/home/jonatan/Desktop/development/BDWatchdog/TimestampsSnitch
 source /home/jonatan/Desktop/development/BDWatchdog/set_pythonpath.sh
 
 
+#echo "If you really want to run this script, uncomment this exit"
+#exit 0
+
+
 IP="192.168.51.240"
 echo "Setting user0 balance to 0"
 current_balance=$(gridcoinresearchd -rpcconnect="${IP}" -rpcport="9090" -rpcuser="gridcoinrpc" -rpcpassword="Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV" listaccounts | grep "user0" | sed "s/[\":,]//g" | sed "s/user0//")
@@ -32,18 +36,23 @@ for i in $(seq $count); do
 	fi
 
   now=$(date +"%H:%M:%S")
-	echo "Sending ${COINS} coins at ${now}"
+	echo "Sending ${COINS} coins at ${now} for the ${i} time"
 	gridcoinresearchd sendfrom local ${ADDRESS} ${COINS}
+	if [[ $? -ne 0 ]];
+	then
+	  echo "There was an error, retrying once again in 3 seconds"
+	  sleep 3
+	  gridcoinresearchd sendfrom local ${ADDRESS} ${COINS}
+	  if [[ $? -ne 0 ]];
+    then
+      echo "There was a second error, retrying the last time in 3 seconds"
+      sleep 3
+      gridcoinresearchd sendfrom local ${ADDRESS} ${COINS}
+    fi
+	fi
 done
 
 echo "Waiting for 200 so the last transaction is surely processed"
 sleep 200
 python3 ${TIMESTAMPING_PATH}/signal_experiment.py end "GRC_EXP_2" --username="root" --push
-
-
-
-
-
-
-
 

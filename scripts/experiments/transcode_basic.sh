@@ -11,35 +11,43 @@ function generate_load {
   myecho "Waiting 20 seconds to allow container to start"
   sleep 20
   wait_experiment "1.15"
-  passtime 100
+  passtime 60
 
   export exptime=0
   send_credit 2
   gen_load2
   wait_experiment "1.15"
-  passtime 200
+  passtime 280
 
   export exptime=0
-  send_credit 3
+  send_credit "1.5"
   gen_load3
-  wait_experiment "1.15"
-  passtime 100
+  wait_experiment "0.6"
+  send_credit "1.5"
+  wait_experiment "0.55"
+  passtime 60
 
   export exptime=0
   send_credit 1
   gen_load4
-  wait_experiment "1.15"
+  wait_experiment "0.6"
 
   export exptime=0
-  send_credit 1
+  send_credit "1"
   gen_load5
-  wait_experiment "1.15"
+  wait_experiment "1.85"
 }
 
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 source ${scriptDir}/transcode.sh
-export TIMEOUT=250
+export TIMEOUT=180
+
+export exp_name="transcode_basic_3"
+setup_exp
+run_simple_exp
+sleep 120
 
 export exp_name="transcode_basic_4"
 setup_exp
 run_simple_exp
+sleep 120
