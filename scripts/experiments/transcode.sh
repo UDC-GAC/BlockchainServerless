@@ -216,6 +216,53 @@ function gen_load5 {
   generate_load_animal "seagull" "2" "1080"
 }
 
+function gen_load_extra {
+  generate_load_animal "frog" "1" "540"
+  generate_load_animal "frog" "2" "540"
+  generate_load_animal "frog" "3" "540"
+  generate_load_animal "frog" "3" "720"
+  generate_load_animal "frog" "4" "540"
+  generate_load_animal "frog" "4" "720"
+  generate_load_animal "frog" "4" "1080"
+  generate_load_animal "frog" "5" "540"
+  generate_load_animal "frog" "5" "720"
+  generate_load_animal "frog" "5" "1080"
+  generate_load_animal "frog" "6" "360"
+  generate_load_animal "frog" "6" "540"
+  generate_load_animal "frog" "6" "720"
+  generate_load_animal "frog" "6" "1080"
+  
+  generate_load_animal "seagull" "1" "540"
+  generate_load_animal "seagull" "2" "540"
+  generate_load_animal "seagull" "3" "540"
+  generate_load_animal "seagull" "3" "720"
+  generate_load_animal "seagull" "4" "540"
+  generate_load_animal "seagull" "4" "720"
+  generate_load_animal "seagull" "4" "1080"
+  generate_load_animal "seagull" "5" "360"
+  generate_load_animal "seagull" "5" "540"
+  generate_load_animal "seagull" "5" "720"
+  generate_load_animal "seagull" "5" "1080"
+  generate_load_animal "seagull" "6" "360"
+  generate_load_animal "seagull" "6" "540"
+  generate_load_animal "seagull" "6" "720"
+  generate_load_animal "seagull" "6" "1080"
+  
+  
+  generate_load_animal "bird" "1" "720"
+  generate_load_animal "bird" "1" "1080"
+  generate_load_animal "bird" "2" "720"
+  generate_load_animal "bird" "2" "1080"
+  generate_load_animal "bird" "3" "720"
+  generate_load_animal "bird" "3" "1080"
+  generate_load_animal "bird" "4" "720"
+  generate_load_animal "bird" "4" "1080"
+  generate_load_animal "bird" "5" "540"
+  generate_load_animal "bird" "5" "1080"
+  generate_load_animal "bird" "6" "540"
+  generate_load_animal "bird" "6" "1080"
+}
+
 
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 source ${scriptDir}/common.sh

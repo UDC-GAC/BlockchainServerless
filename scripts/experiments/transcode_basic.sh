@@ -35,12 +35,22 @@ function generate_load {
   export exptime=0
   send_credit "1"
   gen_load5
-  wait_experiment "1.85"
+  wait_experiment "3"
 }
 
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 source ${scriptDir}/transcode.sh
 export TIMEOUT=180
+
+export exp_name="transcode_basic_1"
+setup_exp
+run_simple_exp
+sleep 120
+
+export exp_name="transcode_basic_2"
+setup_exp
+run_simple_exp
+sleep 120
 
 export exp_name="transcode_basic_3"
 setup_exp
@@ -51,3 +61,4 @@ export exp_name="transcode_basic_4"
 setup_exp
 run_simple_exp
 sleep 120
+

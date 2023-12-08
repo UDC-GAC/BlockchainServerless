@@ -65,9 +65,9 @@ function gen_load1 {
 }
 
 function gen_load_long {
-  #generate_load_sample "bacteria.1001.1.genomic.fna.gz"
-  #generate_load_sample "bacteria.1002.1.genomic.fna.gz"
-  #generate_load_sample "bacteria.1003.1.genomic.fna.gz"
+  generate_load_sample "bacteria.1001.1.genomic.fna.gz"
+  generate_load_sample "bacteria.1002.1.genomic.fna.gz"
+  generate_load_sample "bacteria.1003.1.genomic.fna.gz"
   generate_load_sample "bacteria.1004.1.genomic.fna.gz"
   generate_load_sample "bacteria.1005.1.genomic.fna.gz"
   generate_load_sample "bacteria.1006.1.genomic.fna.gz"
