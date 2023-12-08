@@ -14,23 +14,35 @@ function get_4fold_times {
 source /home/jonatan/Desktop/development/BDWatchdog/set_pythonpath.sh
 BDW_PATH="/home/jonatan/Desktop/development/BDWatchdog/"
 
-EXP="transcode_basic_1"
-get_times > transcode/basic/${EXP}.txt
-EXP="transcode_basic_2"
-get_times > transcode/basic/${EXP}.txt
-EXP="transcode_basic_3"
-get_times > transcode/basic/${EXP}.txt
-EXP="transcode_basic_4"
-get_times > transcode/basic/${EXP}.txt
+#EXP="transcode_basic_1"
+#get_times > transcode/basic/${EXP}.txt
+#EXP="transcode_basic_2"
+#get_times > transcode/basic/${EXP}.txt
+#EXP="transcode_basic_3"
+#get_times > transcode/basic/${EXP}.txt
+#EXP="transcode_basic_4"
+#get_times > transcode/basic/${EXP}.txt
+#
+#EXP="transcode_greedy_1"
+#get_times > transcode/greedy/${EXP}.txt
+#EXP="transcode_greedy_2"
+#get_times > transcode/greedy/${EXP}.txt
+#EXP="transcode_greedy_3"
+#get_times > transcode/greedy/${EXP}.txt
+#EXP="transcode_greedy_4"
+#get_times > transcode/greedy/${EXP}.txt
 
-EXP="transcode_greedy_1"
-get_times > transcode/greedy/${EXP}.txt
-EXP="transcode_greedy_2"
-get_times > transcode/greedy/${EXP}.txt
-EXP="transcode_greedy_3"
-get_times > transcode/greedy/${EXP}.txt
-EXP="transcode_greedy_4"
-get_times > transcode/greedy/${EXP}.txt
+#EXP="transcode_greedy_1"
+#get_times > transcode/greedy/${EXP}.txt
+#EXP="transcode_greedy_2"
+#get_times > transcode/greedy/${EXP}.txt
+#EXP="transcode_greedy_3"
+#get_times > transcode/greedy/${EXP}.txt
+#EXP="transcode_greedy_4"
+#get_times > transcode/greedy/${EXP}.txt
+
+# 2023/12/07-22:00:14
+# 2023/12/07-22:19:05
 
 EXP="transcode_4fold_1"
 get_4fold_times > transcode/4fold/${EXP}.txt
@@ -41,14 +53,8 @@ get_4fold_times > transcode/4fold/${EXP}.txt
 EXP="transcode_4fold_4"
 get_4fold_times > transcode/4fold/${EXP}.txt
 
-EXP="genomics_greedy_1"
-get_times > genomics/greedy/${EXP}.txt
-EXP="genomics_greedy_2"
-get_times > genomics/greedy/${EXP}.txt
-EXP="genomics_greedy_3"
-get_times > genomics/greedy/${EXP}.txt
-EXP="genomics_greedy_4"
-get_times > genomics/greedy/${EXP}.txt
+exit 0
+
 
 EXP="genomics_conservative_1"
 get_times > genomics/conservative/${EXP}.txt
