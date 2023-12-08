@@ -31,39 +31,37 @@ BDW_PATH="/home/jonatan/Desktop/development/BDWatchdog/"
 #get_times > transcode/greedy/${EXP}.txt
 #EXP="transcode_greedy_4"
 #get_times > transcode/greedy/${EXP}.txt
+#
+#EXP="transcode_4fold_1"
+#get_4fold_times > transcode/4fold/${EXP}.txt
+#EXP="transcode_4fold_2"
+#get_4fold_times > transcode/4fold/${EXP}.txt
+#EXP="transcode_4fold_3"
+#get_4fold_times > transcode/4fold/${EXP}.txt
+#EXP="transcode_4fold_4"
+#get_4fold_times > transcode/4fold/${EXP}.txt
 
-#EXP="transcode_greedy_1"
-#get_times > transcode/greedy/${EXP}.txt
-#EXP="transcode_greedy_2"
-#get_times > transcode/greedy/${EXP}.txt
-#EXP="transcode_greedy_3"
-#get_times > transcode/greedy/${EXP}.txt
-#EXP="transcode_greedy_4"
-#get_times > transcode/greedy/${EXP}.txt
 
-# 2023/12/07-22:00:14
-# 2023/12/07-22:19:05
+#EXP="genomics_greedy_1"
+#get_times > genomics/greedy/${EXP}.txt
+#EXP="genomics_greedy_2"
+#get_times > genomics/greedy/${EXP}.txt
+#EXP="genomics_greedy_3"
+#get_times > genomics/greedy/${EXP}.txt
+#EXP="genomics_greedy_4"
+#get_times > genomics/greedy/${EXP}.txt
 
-EXP="transcode_4fold_1"
-get_4fold_times > transcode/4fold/${EXP}.txt
-EXP="transcode_4fold_2"
-get_4fold_times > transcode/4fold/${EXP}.txt
-EXP="transcode_4fold_3"
-get_4fold_times > transcode/4fold/${EXP}.txt
-EXP="transcode_4fold_4"
-get_4fold_times > transcode/4fold/${EXP}.txt
+
+#EXP="genomics_conservative_1"
+#get_times > genomics/conservative/${EXP}.txt
+#EXP="genomics_conservative_2"
+#get_times > genomics/conservative/${EXP}.txt
+#EXP="genomics_conservative_3"
+#get_times > genomics/conservative/${EXP}.txt
+#EXP="genomics_conservative_4"
+#get_times > genomics/conservative/${EXP}.txt
 
 exit 0
-
-
-EXP="genomics_conservative_1"
-get_times > genomics/conservative/${EXP}.txt
-EXP="genomics_conservative_2"
-get_times > genomics/conservative/${EXP}.txt
-EXP="genomics_conservative_3"
-get_times > genomics/conservative/${EXP}.txt
-EXP="genomics_conservative_4"
-get_times > genomics/conservative/${EXP}.txt
 
 EXP="genomics_4fold_1"
 get_4fold_times > genomics/4fold/${EXP}.txt
