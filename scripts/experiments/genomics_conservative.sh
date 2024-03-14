@@ -11,10 +11,26 @@ source ${scriptDir}/genomics.sh
 
 export START_CREDIT=20
 export MIN_BALANCE=8
-export MAX_DEBT="-1"
+export MAX_DEBT="-3" # Not actually used
 export POLICY="conservative"
+export TIMEOUT=120
 
-export exp_name="$(date "+%m_%d_%H:%M")_genomics_conservative"
-
+export exp_name="genomics_conservative_1"
 setup_exp
 run_simple_exp
+sleep 120
+
+export exp_name="genomics_conservative_2"
+setup_exp
+run_simple_exp
+sleep 120
+
+export exp_name="genomics_conservative_3"
+setup_exp
+run_simple_exp
+sleep 120
+
+export exp_name="genomics_conservative_4"
+setup_exp
+run_simple_exp
+sleep 120

@@ -33,7 +33,7 @@ function set_user_max_debt {
 }
 
 function signal_test {
-  myecho "Signaling experiment test start"
+  myecho "Signaling experiment test ${1}"
   python3 BDWatchdog/TimestampsSnitch/src/timestamping/signal_test.py ${1} ${exp_name} ${test_name} --push --username root
 }
 
@@ -230,7 +230,6 @@ function run_noserv_acct {
 function run_noserv_noacct {
   export test_name="4.noserv_noacct"
   export test_type="noserv"
-  set_out_log
   myecho "Running test ${test_name}"
   set-cont-template-cpu-current-to-max
   set_user_billing_type_current

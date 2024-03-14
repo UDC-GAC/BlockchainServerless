@@ -26,6 +26,7 @@ rpcallowip=192.168.10.10
 rpcallowip=192.168.10.16
 rpcallowip=127.0.0.1
 rpcallowip=193.144.50.12
+rpcallowip=192.168.40.2
 rpcport=9090
 rpcuser=gridcoinrpc
 rpcpassword=Bt2oEfVgnMGqvB26UapLERmDu5bvULKr9SPvPBkMkMSV

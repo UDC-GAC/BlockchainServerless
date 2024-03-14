@@ -212,11 +212,14 @@ def run_new_task(bucket):
     worker_process.start()
 
 
-def copy_log_to_bucket(taskname):
+def copy_log_to_bucket(taskname, errored=False):
     myprint("Copying the log of task '{0}' to the 'logs/' dir".format(taskname))
     logname = "out-task-{0}.txt".format(taskname)
     logfile = "/{0}/{1}".format(LOCAL_TMP_DIR, logname)
-    minio_client.fput_object(bucket, "logs/{0}".format(logname), logfile)
+    if errored:
+        minio_client.fput_object(bucket, "logs/{0}.error".format(logname), logfile)
+    else:
+        minio_client.fput_object(bucket, "logs/{0}".format(logname), logfile)
 
 def run_in_worker_process(command, taskname, bucket, local_output_path, cont_last_finished_task):
     #logname = "out-task-{0}-{1}.txt".format(taskname, int(time.time()))
@@ -230,6 +233,7 @@ def run_in_worker_process(command, taskname, bucket, local_output_path, cont_las
             printerr("There was an error running user's script for task '{0}' of type '{1}'".format(taskname, bucket))
             printerr("Moving back the file to 'input'")
             move_task_between_dirs(bucket, "processing", "input", taskname)
+            copy_log_to_bucket(taskname, errored=True)
         else:
             myprint("Task for '{0}' finished successfully".format(taskname))
             copy_log_to_bucket(taskname)

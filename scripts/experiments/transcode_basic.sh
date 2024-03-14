@@ -6,53 +6,59 @@ function passtime {
 function generate_load {
 
   export exptime=0
-  export test_name="1"
-  signal_test "start"
   send_credit 4
   gen_load1
   myecho "Waiting 20 seconds to allow container to start"
   sleep 20
   wait_experiment "1.15"
-  signal_test "end"
+  passtime 60
 
   export exptime=0
-  export test_name="2"
-  signal_test "start"
   send_credit 2
   gen_load2
   wait_experiment "1.15"
-  passtime 150
-  signal_test "end"
+  passtime 280
 
   export exptime=0
-  export test_name="3"
-  signal_test "start"
-  send_credit 3
+  send_credit "1.5"
   gen_load3
-  wait_experiment "1.15"
-  signal_test "end"
+  wait_experiment "0.6"
+  send_credit "1.5"
+  wait_experiment "0.55"
+  passtime 60
 
   export exptime=0
-  export test_name="4"
-  signal_test "start"
   send_credit 1
   gen_load4
-  wait_experiment "1.15"
-  signal_test "end"
+  wait_experiment "0.6"
 
   export exptime=0
-  export test_name="5"
-  signal_test "start"
-  send_credit 1
+  send_credit "1"
   gen_load5
-  wait_experiment "1.15"
-  signal_test "end"
+  wait_experiment "3"
 }
 
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 source ${scriptDir}/transcode.sh
-export TIMEOUT=200
-export exp_name="$(date "+%m_%d_%H:%M")_transcode_basic"
+export TIMEOUT=180
 
+export exp_name="transcode_basic_1"
 setup_exp
 run_simple_exp
+sleep 120
+
+export exp_name="transcode_basic_2"
+setup_exp
+run_simple_exp
+sleep 120
+
+export exp_name="transcode_basic_3"
+setup_exp
+run_simple_exp
+sleep 120
+
+export exp_name="transcode_basic_4"
+setup_exp
+run_simple_exp
+sleep 120
+
