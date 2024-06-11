@@ -1,0 +1,1 @@
+srun --exclusive -N 2 -t 72:00:00 -p compute2 --pty bash -i
