@@ -1,2 +1,2 @@
-{"type": "experiment", "info": {"username": "root", "start_time": 1702000614, "end_time": 1702005619, "experiment_id": "genomics_greedy_2"}}
-{"type": "test", "info": {"username": "root", "start_time": 1702000635, "end_time": 1702004835, "experiment_id": "genomics_greedy_2", "test_id": "genomics_greedy_2_1.serv_acct", "test_name": "1.serv_acct"}}
+{"type": "experiment", "info": {"username": "root", "start_time": 1718142756, "end_time": 1718147761, "experiment_id": "genomics_greedy_2"}}
+{"type": "test", "info": {"username": "root", "start_time": 1718142780, "end_time": 1718146980, "experiment_id": "genomics_greedy_2", "test_id": "genomics_greedy_2_1.serv_acct", "test_name": "1.serv_acct"}}
