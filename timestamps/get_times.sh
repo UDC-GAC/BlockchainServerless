@@ -11,8 +11,9 @@ function get_4fold_times {
   python3 ${BDW_PATH}/TimestampsSnitch/src/timestamping/signal_test.py info "${EXP}" "4.noserv_noacct" --username="root"
 }
 
-source /home/jonatan/Desktop/development/BDWatchdog/set_pythonpath.sh
-BDW_PATH="/home/jonatan/Desktop/development/BDWatchdog/"
+export MONGODB_IP=192.168.51.242
+source /home/jonatan/Desktop/BAY/Investigacion/BDWatchdog/set_pythonpath.sh
+BDW_PATH="/home/jonatan/Desktop/BAY/Investigacion/BDWatchdog/"
 
 EXP="transcode_basic_1"
 get_times > transcode/basic/${EXP}.txt
@@ -67,6 +68,8 @@ EXP="genomics_4fold_3"
 get_4fold_times > genomics/4fold/${EXP}.txt
 EXP="genomics_4fold_4"
 get_4fold_times > genomics/4fold/${EXP}.txt
+
+exit 0
 
 EXP="GRC_EXP_1"
 python3 ${BDW_PATH}/TimestampsSnitch/src/timestamping/signal_experiment.py info "${EXP}" --username="root" > grc_transaction/grc_exp_1.txt
