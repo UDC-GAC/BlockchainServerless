@@ -12,8 +12,8 @@ function get_4fold_times {
 }
 
 export MONGODB_IP=192.168.51.242
-source /home/jonatan/Desktop/BAY/Investigacion/BDWatchdog/set_pythonpath.sh
-BDW_PATH="/home/jonatan/Desktop/BAY/Investigacion/BDWatchdog/"
+source /home/jonatan/Desktop/BAY/investigacion/BDWatchdog/set_pythonpath.sh
+BDW_PATH="/home/jonatan/Desktop/BAY/investigacion/BDWatchdog"
 
 EXP="transcode_basic_1"
 get_times > transcode/basic/${EXP}.txt

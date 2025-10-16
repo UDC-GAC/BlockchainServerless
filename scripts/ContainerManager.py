@@ -358,7 +358,7 @@ def start_container_process(bucket, contname):
         printerr("Could not start the container")
 
 
-FUNCTIONS = ["genomics"] # transcode, genomics
+FUNCTIONS = ["transcode"] # transcode, genomics
 
 if __name__ == '__main__':
     logging.basicConfig(filename='manager.log', level=logging.INFO)

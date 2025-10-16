@@ -32,7 +32,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 rm cgroups_file.toml
-python3 /home/jonatan.enes/change_cgroupsv1_permissions.py apptainer singularity "${CONT_NAME}"
+python3 /home/jonatan.enes/change_cgroups_permissions.py v1 apptainer singularity "${CONT_NAME}"
 sudo apptainer exec instance://${CONT_NAME} screen -d -m bash /home/jonatan.enes/BDWatchdog/MetricsFeeder/scripts/run_atop_stream.sh
 
 # This should take an additional 1 to 2 seconds
@@ -40,8 +40,11 @@ http_code1=$(curl -X PUT -H "Content-Type: application/json" --output /tmp/pet1.
 http_code2=$(curl -X PUT -H "Content-Type: application/json" --output /tmp/pet2.log -s -w "%{http_code}" http://${HOST_1}:5000/structure/container/${CONT_NAME}/app0)
 if [[ ${http_code1} -ne "200" ]] || [[ ${http_code2} -ne "200" ]]; then
   echo "There was an error subscribing the container in the Serverless Platform, stopping the container"
+  echo "Output from trying to subscribe container was:"
   cat /tmp/pet1.log
+  echo "Output from trying to subscribe container to app was:"
   cat /tmp/pet2.log
+  echo "Stopping the actually started container"
   sudo apptainer instance stop ${CONT_NAME}
   exit 1
 fi

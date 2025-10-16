@@ -1,4 +1,4 @@
-#!/usr/bin/fish
+#!/usr/bin/bash
 
 # Estos son los comandos a ejecutar en el 'nodo 0', el nodo que se use para
 # ejecutar las cargas experimentales propiamente
@@ -6,11 +6,10 @@
 # Tambien se pondrán aquí los comandos comunes a cualquier nodo de experimentación
 
 echo "Este script aun no soporta la ejecución automatizada"
-exit 0
+#exit 0
 
 # Configurar las variables de entorno
 vim BlockchainServerless/scripts/exp-vars.sh
-vim BlockchainServerless/scripts/exp-vars.fish
 
 # Exportarlas
 source BlockchainServerless/scripts/exp-vars.sh
@@ -21,7 +20,11 @@ sed -i 's/opentsdb/193.144.50.38/g' BDWatchdog/services_config.yml
 sed -i 's/POST_DOC_BUFFER_TIMEOUT=10/POST_DOC_BUFFER_TIMEOUT=5/g' BDWatchdog/MetricsFeeder/scripts/run_atop_stream.sh
 
 # Clonar Serverless Containers en el home de Pluton, la rama de experimentacion blockchain
-#git clone -b blockchain-experiments https://github.com/UDC-GAC/ServerlessContainers
+git clone -b blockchain-experiments https://github.com/UDC-GAC/ServerlessContainers
+
+# Descargar GATK 4.4.0.0, necesario para el pipeline de megatenomica
+wget https://github.com/broadinstitute/gatk/releases/download/4.4.0.0/gatk-4.4.0.0.zip
+unzip gatk-4.4.0.0.zip
 
 # Construir el contenedor base
 apptainer build --force base.sif BlockchainServerless/containers/base.def
@@ -56,28 +59,41 @@ bash BlockchainServerless/scripts/gridcoin/set_user_balance.sh 0
 apptainer exec instance://grc bash BlockchainServerless/scripts/gridcoin/gridcoin-run.sh listaccounts
 
 # Descargar el script de Oscar para cambiar permisos
-wget https://raw.githubusercontent.com/UDC-GAC/ServerlessYARN/master/ansible/provisioning/scripts/change_cgroupsv1_permissions.py
+wget https://raw.githubusercontent.com/UDC-GAC/ServerlessYARN/master/ansible/provisioning/scripts/change_cgroups_permissions.py
 
 # Arrancar el Node Scaler
 tmux new -d -s "NODE_SCALER" "source ServerlessContainers/set_pythonpath.sh && python3 ServerlessContainers/src/NodeRescaler/NodeRescaler.py"
 
+# ARRANCAR MINIO EN EL OTRO NODO
+
 # Configurar cliente de MinIO
-mc alias set 'myminio' "http://$HOST_1:9000" 'minioadmin' 'minioadmin'
+mc alias set 'myminio' "http://${HOST_1}:9000" 'minioadmin' 'minioadmin'
 mc admin info myminio
+
+# Preparar los datos en local
+cp STORE/data/animals.tar.gz ${HOME}
+tar xvf animals.tar.gz
+
+# Arrancar el ContainerManager
+tmux new -d -s "ContainerManager" "source ServerlessContainers/set_pythonpath.sh && python3 BlockchainServerless/scripts/ContainerManager.py"
+
+# Arrancar un experimento
+tmux
+bash BlockchainServerless/scripts/experiments/transcode_basic.sh
 
 exit 0
 
 ############################################
 
-set LOAD "genomics"
+export LOAD="transcode"
 
-mc mb myminio/{$LOAD}/input
-mc mb myminio/{$LOAD}/processing
-mc mb myminio/{$LOAD}/output
-mc mb myminio/{$LOAD}/utils
-mc mb myminio/{$LOAD}/logs
-mc mb myminio/{$LOAD}/results
-mc mb myminio/{$LOAD}/staging
+mc mb myminio/${LOAD}/input
+mc mb myminio/${LOAD}/processing
+mc mb myminio/${LOAD}/output
+mc mb myminio/${LOAD}/utils
+mc mb myminio/${LOAD}/logs
+mc mb myminio/${LOAD}/results
+mc mb myminio/${LOAD}/staging
 
 mc mb myminio/gatk/sample/processing
 mc mb myminio/gatk/sample/output

@@ -1,10 +1,10 @@
-#!/usr/bin/fish
+#!/usr/bin/bash
 
 # Estos son los comandos a ejecutar en el 'nodo 1', el nodo auxiliar
 # usado para levantar el framework de Serverless Containers y cualquier 
 # otro programa necesario para la ejecucion de los experimentos
 
-source BlockchainServerless/scripts/exp-vars.fish
+source BlockchainServerless/scripts/exp-vars.sh
 
 cat /etc/hosts > myhosts
 echo "193.144.50.38 opentsdb" >> myhosts
@@ -13,15 +13,15 @@ echo "$HOST_1 orchestrator" >> myhosts
 echo "$HOST_0 host0" >> myhosts
 
 # Levantar la StateDatabase (Couchdb)
-rm -Rf {$COUCHDB_DATA} && mkdir {$COUCHDB_DATA}
-apptainer instance start --bind {$COUCHDB_DATA}:/opt/couchdb/data --hostname couchdb couchdb.sif couchdb
+rm -Rf ${COUCHDB_DATA} && mkdir ${COUCHDB_DATA}
+apptainer instance start --bind ${COUCHDB_DATA}:/opt/couchdb/data --hostname couchdb couchdb.sif couchdb
 tmux new -d -s "Couchdb" "apptainer exec instance://couchdb /opt/couchdb/bin/couchdb"
 echo "Waiting for couchdb to start"
 sleep 20
 
 # Desplegar MinIO
-rm -Rf {$MINIO_DATA} &&  mkdir {$MINIO_DATA}
-apptainer instance start --hostname minio --bind {$MINIO_DATA}:/data minio_latest.sif minio
+rm -Rf ${MINIO_DATA} &&  mkdir ${MINIO_DATA}
+apptainer instance start --hostname minio --bind ${MINIO_DATA}:/data minio_latest.sif minio
 tmux new -d -s "Minio" "apptainer exec instance://minio /bin/minio server /data/"
 
 
