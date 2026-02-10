@@ -5,4 +5,4 @@ Stage: build
 %post
    	
 	apt update
-	apt install -y ffmpeg
+	apt install -y ffmpeg tmux
