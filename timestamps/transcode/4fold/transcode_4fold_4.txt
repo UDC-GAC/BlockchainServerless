@@ -1,5 +1,0 @@
-{"type": "experiment", "info": {"username": "root", "start_time": 1718099144, "end_time": 1718111054, "experiment_id": "transcode_4fold_4"}}
-{"type": "test", "info": {"username": "root", "start_time": 1718099170, "end_time": 1718101580, "experiment_id": "transcode_4fold_4", "test_id": "transcode_4fold_4_1.serv_acct", "test_name": "1.serv_acct"}}
-{"type": "test", "info": {"username": "root", "start_time": 1718102200, "end_time": 1718104610, "experiment_id": "transcode_4fold_4", "test_id": "transcode_4fold_4_2.serv_noacct", "test_name": "2.serv_noacct"}}
-{"type": "test", "info": {"username": "root", "start_time": 1718105235, "end_time": 1718107640, "experiment_id": "transcode_4fold_4", "test_id": "transcode_4fold_4_3.noserv_acct", "test_name": "3.noserv_acct"}}
-{"type": "test", "info": {"username": "root", "start_time": 1718108155, "end_time": 1718110565, "experiment_id": "transcode_4fold_4", "test_id": "transcode_4fold_4_4.noserv_noacct", "test_name": "4.noserv_noacct"}}

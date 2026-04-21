@@ -1,2 +1,0 @@
-{"type": "experiment", "info": {"username": "root", "start_time": 1770686983, "end_time": 1770691075, "experiment_id": "transcode_greedy_2"}}
-{"type": "test", "info": {"username": "root", "start_time": 1770687020, "end_time": 1770690635, "experiment_id": "transcode_greedy_2", "test_id": "transcode_greedy_2_1.serv_acct", "test_name": "1.serv_acct"}}

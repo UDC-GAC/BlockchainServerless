@@ -1,2 +1,0 @@
-{"type": "experiment", "info": {"username": "root", "start_time": 1718127950, "end_time": 1718132435, "experiment_id": "genomics_conservative_3"}}
-{"type": "test", "info": {"username": "root", "start_time": 1718127970, "end_time": 1718132170, "experiment_id": "genomics_conservative_3", "test_id": "genomics_conservative_3_1.serv_acct", "test_name": "1.serv_acct"}}

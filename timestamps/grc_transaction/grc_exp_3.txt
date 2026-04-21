@@ -1,1 +1,0 @@
-{"type": "experiment", "info": {"username": "root", "start_time": 1701301500, "end_time": 1701316080, "experiment_id": "GRC_EXP_3"}}
