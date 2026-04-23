@@ -1,15 +1,17 @@
 # BlockchainServerless
 
-This repo contains the scripts and microservices to implement a platform that executes tasks in a serverless fashion, that is, accounting only the consumed resources, but with the addition that the billing of such resources is integrated with the use of a blockchain. Such billing is performed continually by charging the user's wallet. The user can transfer funds to this wallet at any time, thus controlling how much is spent on the tasks' execution. If no funds are available, although a small and configurable debt may be allowed at the cost of placing a resource restriction on the container, eventually such containers are stopped and any running task is aborted.
+This repo contains the scripts and microservices to implement a **platform** that executes **tasks** in a **serverless** fashion, that is, accounting only the consumed resources, but with the addition that the **billing** of such resources is integrated with the use of a **blockchain**. Such billing is performed continually by charging the user's wallet. The user can transfer funds to this wallet at any time, thus controlling how much is spent on the tasks' execution. If no funds are available, although a small and configurable debt may be allowed at the cost of placing a resource restriction on the container, eventually such containers are stopped and any running task is aborted.
 
 The tasks are executed using containers with the Apptainer engine. These containers are continuously scaled in terms of their resources to follow the serverless paradigm, all leveraging a modified version of the ServerlessContainer framework, available [here](https://github.com/UDC-GAC/ServerlessContainers/tree/blockchain-experiments). 
 Both container images and tasks can be specified by the user by defining container image files (.def), and bash scripts for the tasks. Such tasks are oriented to the Function-as-a-Service (FaaS), so the scripts must be simple and written to process single pieces of data, which are hosted on a MinIO server.
 
-Regarding the blockchain, Gridcoin has been used for its technical features, considering that it can be used in a live environment, and that also has a low barrier of entry. 
+Regarding the blockchain, **Gridcoin** has been used for its technical features, considering that it can be used in a live environment, and that also has a low barrier of entry. 
 
 ## Deployment
 
-To deploy this platform, besides deploying the Serverless Containers framework, two microsrvices named ContainerManager and CreditManager have also to be running. To ease this deployment process a script is provided. This script has the commands to clone and start the Serverless Container framework as well as the microservices and MinIO as the object storage used. This script also builds the container base images used.
+To deploy this platform, besides deploying the Serverless Containers framework, two microsrvices named ContainerManager and CreditManager have also to be running. To ease this deployment the script **deploy.sh** in the directory _deployment/scripts/single-node_ is provided. This script has the commands to clone and start the Serverless Container framework as well as the microservices and MinIO as the object storage used. This script also builds the container base images used.
+
+This script assumes that all is deployed on a single node as a testing environment. If needed, this can be scaled to, as of now, two with the scripts in the directory  _deployment/scripts/multi-node_.
 
 ### Blockchain
 
@@ -26,18 +28,21 @@ A basic experiment is provided that uses the _stress_ utility to simulate a load
 By using the Serverless Container framework, the container resources are scaled following the serverless paradigm, all with the objective of increasing resource utilization and reduce operation costs for the provider. 
 Additionally, while the tasks are being executed, the CreditManager microservice will continually bill the user according to the resources consumed, deducting funds from the user's wallet and transfering them to the provider's wallet.
 
-Next several scenarios are depicted with different behaviours according to the number and duration of tasks, and the amount of funds.
+Next, several scenarios are depicted with different behaviours according to the number and duration of tasks, and the amount of funds.
 
 ### Normal execution
 
-Under a normal execution, the user submits both tasks and enough funds to cover their execution, potentially doing so in batches. As seen in the next figures, the user sends a first batch of 5 tasks and 4 Gridcoins (GRCs), which are processed normally, with the container's resources being properly scaled, until around seconds 1200. 
+Under a normal execution, the user submits both tasks and enough funds to cover their execution, potentially doing so in batches. As seen in the next figures, the user sends a first batch of 5 tasks and 4 Gridcoins (GRCs), which are processed normally, with the container's resources being properly scaled, until around second 1200. 
 Then, with an idle time of around 100 seconds, which causes the container to be stopped (note the discontinuation on the time series), a second batch of 4 tasks is sent, matched with a transaction of 1 GRC through the blockchain. These tasks are normally until the end of the execution. The user still has left around 1.8 GRC in funds which could be used in the future, or reclaimed.
 
 
 <div>
-<img src="usage/images/experiment0/cpu.png" width="33%">
-<img src="usage/images/experiment0/accounting.png" width="33%">
-<img src="usage/images/experiment0/tasks.png" width="33%">
+<img src="usage/images/experiment0/cpu.png" width="49%">
+<img src="usage/images/experiment0/accounting.png" width="49%">
+</div>
+
+<div align="center">
+  <img src="usage/images/experiment0/tasks.png" width="49%">
 </div>
 
 ### Debt-generating execution
@@ -46,22 +51,26 @@ It is also possible that during a task's execution the user's funds are depleted
 The generated debt will remain and any future funds transaction will have to cover it first, before any other tasks are started. This happens around second 1200 when a second batch of tasks and funds is sent.
 
 <div>
-<img src="usage/images/experiment1/cpu.png" width="33%">
-<img src="usage/images/experiment1/accounting.png" width="33%">
-<img src="usage/images/experiment1/tasks.png" width="33%">
+<img src="usage/images/experiment1/cpu.png" width="49%">
+<img src="usage/images/experiment1/accounting.png" width="49%">
 </div>
 
+<div align="center">
+  <img src="usage/images/experiment1/tasks.png" width="49%">
+</div>
 
 ### Aborted execution
 
 On a last scenario, it is possible that the user does not send enough funds to run a task, and even when such funds run out and the task is placed under a resource restriction, the debt allowed by the provider to be generated reaches the maximum value. In this case, as a preventive measure, the provider can stop the container and abort the task, which is returned to the pool of pending tasks. Unfortunately in this case both the tasks' progress and the funds consumed are completely wasted.
 
 <div>
-<img src="usage/images/experiment2/cpu.png" width="33%">
-<img src="usage/images/experiment2/accounting.png" width="33%">
-<img src="usage/images/experiment2/tasks.png" width="33%">
+<img src="usage/images/experiment2/cpu.png" width="49%">
+<img src="usage/images/experiment2/accounting.png" width="49%">
 </div>
 
+<div align="center">
+  <img src="usage/images/experiment2/tasks.png" width="49%">
+</div>
 
 
 
