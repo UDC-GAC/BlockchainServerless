@@ -35,14 +35,21 @@ def get_time_now_string():
 
 
 worker_process = None
-SCRIPTS_BASE_PATH = "/home/jonatan.enes/BlockchainServerless/scripts/tasks/common"
-if "HOST_1" not in os.environ:
-    print("Variable 'HOST_1' (where MinIO is deployed) not configured in environment, set it accordingly")
+if "HOST_MINIO" not in os.environ:
+    print("Variable 'HOST_MINIO' (where MinIO is deployed) not configured in environment, set it accordingly")
     exit(1)
 else:
-    HOST_1 = os.environ["HOST_1"]
+    HOST_MINIO = os.environ["HOST_MINIO"]
 
-ORCHESTRATOR_URL = "{0}:5000".format(HOST_1)
+if "SCRIPTS_BASE_PATH" not in os.environ:
+    print("Variable 'SCRIPTS_BASE_PATH', where bash script to process tasks are located, is not configured in environment, set it accordingly")
+    exit(1)
+else:
+    SCRIPTS_BASE_PATH = os.environ["SCRIPTS_BASE_PATH"]
+
+
+
+ORCHESTRATOR_URL = "{0}:5000".format(HOST_MINIO)
 
 LOCAL_TMP_DIR = "/tmp/jonatan.enes"
 
@@ -52,7 +59,7 @@ cont_last_finished_task = Value('i', int(time.time()))
 task_has_finished = multiprocessing.Manager().Lock()
 
 # MinIO configuration
-minio_endpoint = "{0}:9000".format(HOST_1)
+minio_endpoint = "{0}:9000".format(HOST_MINIO)
 minio_access_key = "minioadmin"
 minio_secret_key = "minioadmin"
 
@@ -330,7 +337,7 @@ def print_user_info(user, user_status):
 
     if user_status == "normal":
         myprint(
-            "[{0}] Enough credit, can run unrestricted, start tasks and containers".format(colored("Normal", "cyan")))
+            "[{0}] Enough credit, can run unrestricted, start tasks and containers".format(colored("Normal", "blue")))
     elif user_status == "broke" and us_acc["policy"] == "greedy":
         myprint("[{0}] Scarce credit with 'greedy' policy, can run unrestricted, start tasks and containers".format(
             colored("Broke", "yellow")))
@@ -340,7 +347,7 @@ def print_user_info(user, user_status):
                 colored("Broke", "yellow")))
     elif user_status == "indebt":
         myprint(
-            "[{0}] Debt, restricted execution, can't start tasks or containers".format(colored("Indebt", "light_red")))
+            "[{0}] Debt, restricted execution, can't start tasks or containers".format(colored("Indebt", "red")))
     elif user_status == "scammer":
         myprint("[{0}] Heavy Debt, nothing allowed, if running stop the container".format(colored("Scammer", "red")))
     else:
@@ -358,7 +365,7 @@ def start_container_process(bucket, contname):
         printerr("Could not start the container")
 
 
-FUNCTIONS = ["transcode"] # transcode, genomics
+FUNCTIONS = ["stress"] # transcode, genomics, stress
 
 if __name__ == '__main__':
     logging.basicConfig(filename='manager.log', level=logging.INFO)

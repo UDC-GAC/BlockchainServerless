@@ -1,3 +1,0 @@
-
-# Para desusbcribir un contenedor, ejecutar
-apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Structures/desubscribe_container.sh  transcode-cont

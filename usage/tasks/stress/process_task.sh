@@ -23,8 +23,8 @@ echo "Resulting file will be ${OUT_FILE}"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 file=$(echo ${TASK_NAME} | sed "s/.txt//g")
-num_core=$(echo "$file" | cut -d "." -f 2 | cut -d "-" -f 1)
-runtime=$(echo "$file" | cut -d "." -f 2| cut -d "-" -f 2)
+num_core=$(echo "$file" | cut -d "." -f 3 | cut -d "-" -f 1)
+runtime=$(echo "$file" | cut -d "." -f 3 | cut -d "-" -f 2)
 echo "Will run a stress load with ${num_core} cores for ${runtime} seconds"
 /usr/bin/time -v stress -c "${num_core}" -t "${runtime}"
 exit_code=$?

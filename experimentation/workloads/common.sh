@@ -1,3 +1,6 @@
+COMMON_SCRIPTS_PATH="BlockchainServerless/deployment/scripts/tasks"
+GRIDCOIN_SCRIPTS_PATH="BlockchainServerless/deployment/scripts/gridcoin/"
+
 function check_return_code201 {
   return_code="$http_code"
   if ! [[ ${return_code} =~ ^[0-9]+$ ]] || [[ "${return_code}" -ne "201" ]]; then
@@ -44,7 +47,7 @@ function signal_exp {
 
 function set_serverless {
   myecho "Setting serverless to ${1}"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-guard.sh ${1}
+  apptainer exec instance://sc bash ${COMMON_SCRIPTS_PATH}/set-cont-guard.sh ${1}
 }
 
 function set_accounting {
@@ -56,7 +59,7 @@ function set_accounting {
 function set_user_credit {
   myecho "Setting user credit"
   set_accounting "true"
-  bash BlockchainServerless/scripts/gridcoin/set_user_balance.sh ${START_CREDIT}
+  bash ${GRIDCOIN_SCRIPTS_PATH}/set_user_balance.sh ${START_CREDIT}
   export http_code=$(apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Users/set_accounting_pending_zero.sh user0)
   check_return_code201
   sleep 15
@@ -65,7 +68,7 @@ function set_user_credit {
 
 function send_credit {
   myecho "User sends credit, $1 GRC"
-  apptainer exec instance://grc bash BlockchainServerless/scripts/gridcoin/gridcoin-run.sh move sink user0 $1
+  apptainer exec instance://grc bash ${GRIDCOIN_SCRIPTS_PATH}/gridcoin-run.sh move sink user0 $1
 }
 
 function wait_experiment {
@@ -94,7 +97,7 @@ function prepare_base_buckets {
   } >>${LOGFILE} 2>&1
   myecho "-------------------"
   myecho "Copying the 'process_task.sh' script for this load to the 'utils' bucket in '${LOAD_BUCKET}'"
-  mc cp BlockchainServerless/scripts/tasks/${LOAD_NAME}/process_task.sh ${LOAD_BUCKET}/utils/ >>${LOGFILE} 2>&1
+  mc cp BlockchainServerless/usage/tasks/${LOAD_NAME}/process_task.sh ${LOAD_BUCKET}/utils/ >>${LOGFILE} 2>&1
   myecho "Copying the '${LOAD_NAME}.sif' container image for this load to the 'utils' bucket in '${LOAD_BUCKET}'"
   mc cp "${LOAD_NAME}.sif" ${LOAD_BUCKET}/utils/ >>${LOGFILE} 2>&1
   myecho "Copying the required data in staging, according to the load"
@@ -147,22 +150,22 @@ function set_timeout_container {
 
 function set-cont-template-cpu-current-to-max {
   myecho "Setting the cpu 'current' to the maximum allowed in the container template"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-current-to-max.sh
+  apptainer exec instance://sc bash ${COMMON_SCRIPTS_PATH}/set-cont-current-to-max.sh
 }
 
 function set-cont-template-cpu-current-to-halfmax {
   myecho "Setting the cpu 'current' to the half the maximum allowed in the container template"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-current-to-half-max.sh
+  apptainer exec instance://sc bash ${COMMON_SCRIPTS_PATH}/set-cont-current-to-half-max.sh
 }
 
 function set-cont-template-cpu-max {
   myecho "Setting container template max cpu to ${CONT_MAX_CPU}"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-max.sh ${CONT_MAX_CPU}
+  apptainer exec instance://sc bash ${COMMON_SCRIPTS_PATH}/set-cont-max.sh ${CONT_MAX_CPU}
 }
 
 function set-cont-template-cpu-boundary {
   myecho "Setting container template cpu boundary to ${CONT_BOUNDARY_CPU}"
-  apptainer exec instance://sc bash BlockchainServerless/scripts/tasks/common/set-cont-boundary.sh ${CONT_BOUNDARY_CPU}
+  apptainer exec instance://sc bash ${COMMON_SCRIPTS_PATH}/set-cont-boundary.sh ${CONT_BOUNDARY_CPU}
 }
 
 function set_user_billing_type_current {

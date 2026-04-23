@@ -34,7 +34,6 @@ apptainer build --force stress.sif BlockchainServerless/containers/stress.def
 apptainer build --force genomics.sif BlockchainServerless/containers/genomics.def
 apptainer build --force transcode.sif BlockchainServerless/containers/transcode.def
 
-
 # Construir los contenedores auxiliares
 apptainer build --force couchdb.sif BlockchainServerless/containers/my_couchdb.def
 apptainer build --force sc.sif BlockchainServerless/containers/sc.def
@@ -85,7 +84,7 @@ exit 0
 
 ############################################
 
-export LOAD="transcode"
+export LOAD="stress"
 
 mc mb myminio/${LOAD}/input
 mc mb myminio/${LOAD}/processing

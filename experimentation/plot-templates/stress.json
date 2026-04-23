@@ -82,6 +82,26 @@
         "ymax": 6,
         "ymin": -5
       }
+    },{
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "bucket.tasks.input",
+          "tags": [
+            "bucket=stress"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "bucket.tasks.processing",
+          "tags": [
+            "bucket=stress"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 10,
+        "ymin": 0
+      }
     }
   ]
 }

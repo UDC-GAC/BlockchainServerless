@@ -1,5 +1,6 @@
 scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
-source ${scriptDir}/../../exp-vars.sh
+#source ${scriptDir}/../../exp-vars.sh
+export ORCHESTRATOR_HOST="127.0.0.1"
 
 if [ "$#" -lt 1 ]
 then
@@ -10,4 +11,4 @@ fi
 CONT_NAME=$1
 
 sudo apptainer instance stop ${CONT_NAME}
-curl -X DELETE -H "Content-Type: application/json" http://${HOST_1}:5000/structure/container/${CONT_NAME}
+curl -X DELETE -H "Content-Type: application/json" http://${ORCHESTRATOR_HOST}:5000/structure/container/${CONT_NAME}

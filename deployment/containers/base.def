@@ -1,0 +1,22 @@
+Bootstrap: docker
+From: ubuntu:{{ VERSION }}
+Stage: build
+
+%arguments
+    VERSION=22.04
+
+
+%post
+    apt update
+    apt install -y software-properties-common
+    
+    # Install tzdata, which usually asks for user input thus the fix
+    DEBIAN_FRONTEND=noninteractive TZ=Europe/Madrid apt-get -y install tzdata
+
+    # Basic cli utils
+    apt install -y moreutils git python3-pip python-is-python3 vim curl wget unzip net-tools screenfetch screen time
+
+    # Needed for BDWatchdog MetricsFeeder
+    apt install -y atop
+    pip3 install requests pyyaml
+
