@@ -72,5 +72,20 @@ On a last scenario, it is possible that the user does not send enough funds to r
   <img src="usage/images/experiment2/tasks.png" width="49%">
 </div>
 
+## Used tools
+- [Ansible](https://www.ansible.com/) - Configuration Management Tool
+- [Apptainer](https://apptainer.org/) - Singularity/Apptainer Containers management tool
+- [Python](https://www.python.org) - Programming language
+- [Serverless Containers](https://bdwatchdog.dec.udc.es/serverless/) - Container resource scaling framework
+- [BDWatchdog](https://bdwatchdog.dec.udc.es/monitoring/) - Resource monitoring framework
 
+
+## Authors
+
+* **Jonatan Enes** (https://gac.udc.es/~jonatan/)
+* **Roberto R. Exp&oacute;sito** (https://gac.udc.es/~rober/)
+* **Juan Touriño** (https://gac.udc.es/~juan/)
+
+## License
+This project is distributed as free software and is publicly available under the GNU GPLv3 license (see the [LICENSE](LICENSE) file for more details).
 
