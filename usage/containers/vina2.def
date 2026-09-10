@@ -1,0 +1,10 @@
+Bootstrap: localimage
+From: base.sif
+Stage: build
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+    rm -rf /var/lib/apt/lists/*
+    curl -L -o /usr/local/bin/vina https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_linux_x86_64
+    chmod +x /usr/local/bin/vina

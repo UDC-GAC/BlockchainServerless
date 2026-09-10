@@ -1,0 +1,41 @@
+Bootstrap: localimage
+From: base.sif
+Stage: build
+
+%post
+    # Apptainer does NOT enable errexit in %post. Without this, a failed
+    # apt-get install leaves you with an image that builds fine and is missing
+    # autogrid4, which only shows up much later as a missing-map error.
+    set -eux
+
+    export DEBIAN_FRONTEND=noninteractive
+
+    # autogrid lives in 'universe'. Make sure it is enabled before updating.
+    if ! grep -rqs 'universe' /etc/apt/sources.list /etc/apt/sources.list.d/; then
+        echo "ERROR: 'universe' component not enabled; autogrid is unavailable" >&2
+        exit 1
+    fi
+
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        curl ca-certificates bc autogrid
+    rm -rf /var/lib/apt/lists/*
+
+    curl -fL -o /usr/local/bin/vina \
+      https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_linux_x86_64
+    chmod +x /usr/local/bin/vina
+
+    # ---- hard verification: fail the BUILD, not the experiment --------------
+    command -v autogrid4 >/dev/null || { echo "FATAL: autogrid4 missing" >&2; exit 1; }
+    command -v vina      >/dev/null || { echo "FATAL: vina missing"      >&2; exit 1; }
+    command -v bc        >/dev/null || { echo "FATAL: bc missing"        >&2; exit 1; }
+    autogrid4 --version 2>&1 | head -1
+    vina --version       2>&1 | head -1
+    echo "BUILD OK: $(command -v autogrid4) / $(command -v vina)"
+
+%environment
+    export PATH=/usr/local/bin:$PATH
+
+%test
+    command -v autogrid4 && command -v vina && command -v bc
+    autogrid4 --version 2>&1 | head -1

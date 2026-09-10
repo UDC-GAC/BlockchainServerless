@@ -54,7 +54,7 @@ ORCHESTRATOR_URL = "{0}:5000".format(HOST_MINIO)
 LOCAL_TMP_DIR = "/tmp/jonatan.enes"
 
 USERNAME = "user0"
-images = {"stress": "stress", "genomics": "genomics", "transcode": "transcode"}
+images = {"stress": "stress", "genomics": "genomics", "transcode": "transcode", "vina": "vina"}
 cont_last_finished_task = Value('i', int(time.time()))
 task_has_finished = multiprocessing.Manager().Lock()
 
@@ -365,7 +365,7 @@ def start_container_process(bucket, contname):
         printerr("Could not start the container")
 
 
-FUNCTIONS = ["stress"] # transcode, genomics, stress
+FUNCTIONS = ["vina"] # transcode, genomics, stress, vina
 
 if __name__ == '__main__':
     logging.basicConfig(filename='manager.log', level=logging.INFO)

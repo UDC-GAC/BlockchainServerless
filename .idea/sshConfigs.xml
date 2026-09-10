@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig connectionConfig="{&quot;serverAliveInterval&quot;:300}" host="pluton.dec.udc.es" id="158f2aa1-2aff-45a1-b2cb-d4108be34bed" keyPath="$USER_HOME$/.ssh/id_rsa" port="22" customName="pluton.dec.udc.es" nameFormat="CUSTOM" username="jonatan.enes" useOpenSSHConfig="true">
+        <option name="customName" value="pluton.dec.udc.es" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>

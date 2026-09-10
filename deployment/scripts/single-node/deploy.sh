@@ -44,7 +44,7 @@ bash ${GRC_SCRIPTS_PATH}/set_user_balance.sh 0
 apptainer exec instance://grc bash ${GRC_SCRIPTS_PATH}/gridcoin-run.sh listaccounts
 
 # Download a required script needed to change container permissions
-wget https://raw.githubusercontent.com/UDC-GAC/ServerlessYARN/master/ansible/provisioning/scripts/change_cgroups_permissions.py
+wget https://raw.githubusercontent.com/UDC-GAC/ServerlessYARN/master/ansible/provisioning/scripts/hosts/change_cgroups_permissions.py
 
 # Start the Node Scaler microservice
 pip3 install --user flask pyyaml
@@ -83,13 +83,23 @@ mc admin info myminio
 
 # Arrancar el ContainerManager
 ### PENDING FIX
+pip3 install --user minio==7.0.0 termcolor
+tmux new -s "ContainerManager"
+# ~~~~~~~~~~~
 export SCRIPTS_BASE_PATH="/home/jonatan.enes/BlockchainServerless/deployment/scripts/tasks"
 export HOST_MINIO="127.0.0.1"
-pip3 install --user minio==7.0.0 termcolor
-tmux new -d -s "ContainerManager" "source ServerlessContainers/set_pythonpath.sh && python3 BlockchainServerless/deployment/microservices/ContainerManager.py"
+source ServerlessContainers/set_pythonpath.sh && python3 BlockchainServerless/deployment/microservices/ContainerManager.py
+# ~~~~~~~~~~~
 ### PENDING FIX
-
 
 # Construir los contenedores de experimentación
 apptainer build --force stress.sif ${INSTALL_PATH}/usage/containers/stress.def
+apptainer build --force vina.sif ${INSTALL_PATH}/usage/containers/vina.def
+
+# Check that everything works with a small task file
+bash BlockchainServerless/experimentation/workloads/test-task-stress.sh
+
+bash BlockchainServerless/experimentation/workloads/test-task-vina.sh
+
+
 

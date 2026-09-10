@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="cdb8bf4d-3cac-4ee2-9e08-52da45d25814" name="pluton">
+        <fileTransfer accessType="SFTP" host="pluton.dec.udc.es" port="22" sshConfigId="158f2aa1-2aff-45a1-b2cb-d4108be34bed" sshConfig="pluton.dec.udc.es" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
