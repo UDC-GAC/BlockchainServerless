@@ -101,5 +101,5 @@ bash BlockchainServerless/experimentation/workloads/test-task-stress.sh
 
 bash BlockchainServerless/experimentation/workloads/test-task-vina.sh
 
-
+apptainer exec instance://sc bash ServerlessContainers/conf/desubscribe_all.sh
 
