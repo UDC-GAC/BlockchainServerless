@@ -168,6 +168,10 @@ function configure_rules {
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/set_event_timeout.sh 60                            # default is 80
 }
 
+function set-cont-template-cpu-current {
+  set-cont-template-cpu-current-to-halfmax
+}
+
 function gen_load1 {
   generate_load_animal "frog" "1" "1080"
   generate_load_animal "frog" "1" "360"

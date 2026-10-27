@@ -148,6 +148,11 @@ function set_timeout_container {
   mc cp timeout.txt ${LOAD_BUCKET}/utils >>${LOGFILE} 2>&1
 }
 
+function set-cont-template-cpu-current-to-min {
+  myecho "Setting the cpu 'current' to the minimum allowed in the container template"
+  apptainer exec instance://sc bash ${COMMON_SCRIPTS_PATH}/set-cont-current-to-min.sh
+}
+
 function set-cont-template-cpu-current-to-max {
   myecho "Setting the cpu 'current' to the maximum allowed in the container template"
   apptainer exec instance://sc bash ${COMMON_SCRIPTS_PATH}/set-cont-current-to-max.sh
@@ -182,7 +187,7 @@ function run_serv_acct {
   export test_name="1.serv_acct"
   export test_type="serv"
   myecho "Running test ${test_name}"
-  set-cont-template-cpu-current-to-halfmax
+  set-cont-template-cpu-current
   set_user_billing_type_used
   set_user_credit
   set_serverless "true"
@@ -200,7 +205,7 @@ function run_serv_noacct {
   export test_name="2.serv_noacct"
   export test_type="serv"
   myecho "Running test ${test_name}"
-  set-cont-template-cpu-current-to-halfmax
+  set-cont-template-cpu-current
   set_user_billing_type_used
   set_user_credit
   set_serverless "true"

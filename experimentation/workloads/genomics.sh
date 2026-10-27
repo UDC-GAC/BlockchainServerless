@@ -45,6 +45,10 @@ function sumtime {
   fi
 }
 
+function set-cont-template-cpu-current {
+  set-cont-template-cpu-current-to-halfmax
+}
+
 function generate_load_sample {
   mycopy STORE/data/metagenomics/input/$1 "input"
   sumtime "$1"

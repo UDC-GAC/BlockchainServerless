@@ -25,22 +25,21 @@ function load_staging_data {
 
 function generate_task {
     local ligand_num="$1"
-    local parallel="$2"  # short | medium | large  -> exhaustiveness
-    local serial="$3"    # short | medium | large  -> npts
-
+    local serial="$2"    # short | medium | large  -> npts
+    local parallel="$3"  # short | medium | large  -> exhaustiveness
 
     local npts exh
 
     case "${serial}" in
         short)  npts=80  ;;
         medium) npts=100 ;;
-        large)  npts=128 ;;
+        long)  npts=128 ;;
     esac
 
     case "${parallel}" in
         short)  exh=32  ;;
         medium) exh=64  ;;
-        large)  exh=128 ;;
+        long)  exh=128 ;;
     esac
 
     data_path="BlockchainServerless/usage/tasks/vina/"
@@ -52,52 +51,100 @@ function generate_task {
     mycopy ${data_path}/$zipfile "input"
 }
 
+function generate_load {
+
+    generate_task "14" "long" "medium"
+    generate_task "04" "short" "short"
+    generate_task "04" "medium" "short"
+    generate_task "14" "long" "long"
+    generate_task "17" "long" "long"
+    generate_task "04" "short" "medium"
+    generate_task "04" "medium" "medium"
+    generate_task "06" "long" "short"
+    generate_task "06" "short" "medium"
+    generate_task "04" "long" "short"
+    generate_task "06" "medium" "medium"
+    sleep_time=1500
+    myecho "Waiting for the load to finish (${sleep_time} seconds)"
+    sleep ${sleep_time}
+}
+
 
 #function generate_load {
-#    generate_task "${VINA_LIGAND_NUM}" "short" "short"
-#    generate_task "${VINA_LIGAND_NUM}" "short" "medium"
-#    generate_task "${VINA_LIGAND_NUM}" "short" "large"
-#    generate_task "${VINA_LIGAND_NUM}" "medium" "short"
-#    generate_task "${VINA_LIGAND_NUM}" "medium" "medium"
-#    generate_task "${VINA_LIGAND_NUM}" "medium" "large"
-#    generate_task "${VINA_LIGAND_NUM}" "large" "medium"
-#    sleep_time=1200
+#
+#    generate_task "14" "long" "medium"
+#    generate_task "14" "long" "long"
+#    generate_task "17" "long" "long"
+#    sleep_time=800
+#    myecho "Waiting for the load to finish (${sleep_time} seconds)"
+#    sleep ${sleep_time}
+#
+#    generate_task "04" "short" "short"
+#    generate_task "04" "medium" "short"
+#    generate_task "04" "long" "short"
+#    generate_task "04" "short" "medium"
+#    generate_task "04" "medium" "medium"
+#    sleep_time=800
+#    myecho "Waiting for the load to finish (${sleep_time} seconds)"
+#    sleep ${sleep_time}
+#
+#    generate_task "06" "long" "short"
+#    generate_task "06" "short" "medium"
+#    generate_task "06" "medium" "medium"
+#    sleep_time=400
 #    myecho "Waiting for the load to finish (${sleep_time} seconds)"
 #    sleep ${sleep_time}
 #}
+#
+#function set_responsiveness {
+#   case "${responsiveness}" in
+#        low)
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 12
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown up 0
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleUp down 2
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleUp up 6;;
+#        medium)
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 6
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown up 0
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleUp down 6
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleUp up 4;;
+#        high)
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 4
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown up 1
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleUp down 10
+#          apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleUp up 2;;
+#    esac
+#}
+#
+#
+#function set_benevolence {
+#     case "${benevolence}" in
+#        low) apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 100 ;;
+#        medium) apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 200;;
+#        high)  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 300 ;;
+#    esac
+#}
+#
+#function configure_rules {
+#    echo "Configuring Rules"
+#    set_responsiveness
+#    set_benevolence
+#}
 
-function generate_load {
-    generate_task "03" "short" "short"
-    generate_task "03" "short" "medium"
-    generate_task "03" "short" "large"
-    generate_task "03" "medium" "short"
-    generate_task "03" "medium" "medium"
-    sleep_time=400
-    myecho "Waiting for the load to finish (${sleep_time} seconds)"
-    sleep ${sleep_time}
-
-    generate_task "10" "medium" "large"
-    generate_task "10" "large" "large"
-    sleep_time=600
-    myecho "Waiting for the load to finish (${sleep_time} seconds)"
-    sleep ${sleep_time}
-
-    sleep 400
-
-    generate_task "06" "short" "large"
-    generate_task "06" "medium" "short"
-    generate_task "06" "medium" "medium"
-    sleep_time=400
-    myecho "Waiting for the load to finish (${sleep_time} seconds)"
-    sleep ${sleep_time}
-
-}
 
 function configure_rules {
-  echo "Configuring Rules"
+  myecho "Configuring Rules"
   apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_amount.sh default CpuRescaleUp 200
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 14
-  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleUp down 10
+  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Rules/change_events_amount.sh default CpuRescaleDown down 4 # default is 6
+  apptainer exec instance://sc bash ServerlessContainers/scripts/orchestrator/Guardian/set_event_timeout.sh 60                            # default is 80
+}
+
+function set-cont-template-cpu-current {
+    case "${startup_resources}" in
+        min) set-cont-template-cpu-current-to-min;;
+        halfmax) set-cont-template-cpu-current-to-halfmax;;
+        max) set-cont-template-cpu-current-to-max;;
+    esac
 }
 
 export -f generate_load
@@ -107,11 +154,11 @@ export -f configure_rules
 export scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 source ${scriptDir}/common.sh
 
-export CONT_MAX_CPU=600
-export CONT_BOUNDARY_CPU=50
-export LOAD_NAME="vina"
-export LOAD_BUCKET="myminio/${LOAD_NAME}"
-export TIMEOUT=10
+#export CONT_MAX_CPU=600
+#export CONT_BOUNDARY_CPU=50
+#export LOAD_NAME="vina"
+#export LOAD_BUCKET="myminio/${LOAD_NAME}"
+#export TIMEOUT=10
 
 #export VINA_LIGAND_NUM="01"
 #export MIN_BALANCE="0"
@@ -129,11 +176,116 @@ export LOAD_BUCKET="myminio/${LOAD_NAME}"
 export TIMEOUT=10
 export MIN_BALANCE="0"
 export MAX_DEBT="-0.5"
-export START_CREDIT=2
+export START_CREDIT=20
 export POLICY="greedy"
-export exp_name="check_task_vina_3"
+
+export exp_name="2.vina_baseline"
 setup_exp
-run_simple_exp
+empty_bucket
+signal_exp "start"
+run_noserv_noacct
+signal_exp "end"
+#
+#export benevolence="high"
+#export responsiveness="high"
+#export startup_resources="min"
+#export exp_name="vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
+#
+#export benevolence="medium"
+#export responsiveness="high"
+#export startup_resources="min"
+#export exp_name="vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
+#
+#export benevolence="high"
+#export responsiveness="low"
+#export startup_resources="min"
+#export exp_name="vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
+#
+#export benevolence="high"
+#export responsiveness="low"
+#export startup_resources="halfmax"
+#export exp_name="vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
+#
+#export benevolence="medium"
+#export responsiveness="medium"
+#export startup_resources="halfmax"
+#export exp_name="vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
+
+
+#export benevolence="high"
+#export responsiveness="high"
+#export startup_resources="min"
+#export exp_name="2.vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
+#
+#export benevolence="medium"
+#export responsiveness="high"
+#export startup_resources="min"
+#export exp_name="2.vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
+#
+#export benevolence="high"
+#export responsiveness="low"
+#export startup_resources="min"
+#export exp_name="2.vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
+#
+#export benevolence="high"
+#export responsiveness="low"
+#export startup_resources="halfmax"
+#export exp_name="2.vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
+#
+#export benevolence="medium"
+#export responsiveness="medium"
+#export startup_resources="halfmax"
+#export exp_name="2.vina_st[${startup_resources}]_resp[${responsiveness}]_ben[${benevolence}]"
+#setup_exp
+#empty_bucket
+#signal_exp "start"
+#run_serv_acct
+#signal_exp "end"
 
 #export VINA_LIGAND_NUM="01"
 #for VINA_LIGAND_NUM in {20..42}; do

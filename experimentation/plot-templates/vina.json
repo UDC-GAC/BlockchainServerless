@@ -1,0 +1,79 @@
+{
+  "timeseries": [
+    {
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "proc.cpu.user",
+          "tags": [
+            "host=vina-cont"
+          ]
+        },
+        {
+          "aggregator": "zimsum",
+          "metric": "structure.cpu.max",
+          "tags": [
+            "structure=vina-cont"
+          ]
+        },
+        {
+          "aggregator": "zimsum",
+          "metric": "structure.cpu.current",
+          "tags": [
+            "structure=vina-cont"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 2100,
+        "ymin": 0
+      }
+    },{
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "user.accounting.coins",
+          "tags": [
+            "user=user0"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "user.accounting.min_balance",
+          "tags": [
+            "user=user0"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "user.accounting.max_debt",
+          "tags": [
+            "user=user0"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 12,
+        "ymin": -3
+      }
+    },{
+      "metrics": [
+        {
+          "aggregator": "zimsum",
+          "metric": "bucket.tasks.input",
+          "tags": [
+            "bucket=vina"
+          ]
+        },{
+          "aggregator": "zimsum",
+          "metric": "bucket.tasks.processing",
+          "tags": [
+            "bucket=vina"
+          ]
+        }
+      ],
+      "yranges": {
+        "ymax": 10,
+        "ymin": 0
+      }
+    }
+  ]
+}
